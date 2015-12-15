@@ -1,0 +1,20 @@
+package: nb_anaconda_cloud
+
+platform:
+  - linux-64
+  - osx-64
+  - win-64
+
+engine:
+  - python=2.7
+  - python=3.4
+  - python=3.5
+
+install:
+  - conda build conda.recipe -c anaconda-notebook
+  - conda install nb_anaconda_cloud --use-local -c anaconda-notebook
+
+test:
+  - python -m unittest discover
+
+build_targets: conda

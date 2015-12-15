@@ -1,0 +1,18 @@
+package:
+  name: nb_anaconda_cloud
+  version: 0.1.0
+
+requirements:
+  build:
+    - python
+  run:
+    - anaconda-client
+    - nbsetuptools
+    - notebook
+
+source:
+  path: ../
+
+about:
+  home: TBD
+  license: TBD

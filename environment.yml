@@ -1,0 +1,7 @@
+name: nb_anaconda_cloud
+channels:
+  - anaconda-notebook
+dependencies:
+  - anaconda-client
+  - notebook
+  - nbsetuptools
