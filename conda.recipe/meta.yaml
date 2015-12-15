@@ -1,10 +1,13 @@
 package:
-  name: nb_anaconda_cloud
+  name: nb_anacondacloud
   version: 0.1.0
 
 requirements:
   build:
+    - anaconda-client
+    - nbsetuptools
     - python
+    - setuptools
   run:
     - anaconda-client
     - nbsetuptools

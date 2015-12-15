@@ -1,1 +1,1 @@
-"%PREFIX%/bin/python" -m nb_anaconda_cloud.setup remove --prefix="%PREFIX%"
+"%PREFIX%/bin/python" -m nb_anacondacloud.setup remove --prefix="%PREFIX%"

@@ -1,4 +1,4 @@
-package: nb_anaconda_cloud
+package: nb_anacondacloud
 
 platform:
   - linux-64
@@ -12,7 +12,7 @@ engine:
 
 install:
   - conda build conda.recipe -c anaconda-notebook
-  - conda install nb_anaconda_cloud --use-local -c anaconda-notebook
+  - conda install nb_anacondacloud --use-local -c anaconda-notebook
 
 test:
   - python -m unittest discover

@@ -1,4 +1,4 @@
-name: nb_anaconda_cloud
+name: nb_anacondacloud
 channels:
   - anaconda-notebook
 dependencies:
