@@ -63,4 +63,4 @@ def load_jupyter_server_extension(nb_app):
     webapp.add_handlers(".*$", [
         (url_path_join(base_url, r"/ac-publish"), PublishHandler)
     ])
-    nb_app.log.info("Enabling nb-anaconda-notebook")
+    nb_app.log.info("Enabling nb_anacondanotebook")
