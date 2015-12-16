@@ -4,3 +4,4 @@ build/
 develop-eggs/
 dist/
 .DS_Store
+*.egg-info/
