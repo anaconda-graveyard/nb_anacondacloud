@@ -19,6 +19,7 @@ define(['jquery'], function ($) {
         }).done(function(data) {
             IPython.notification_area.get_widget("notebook").
                 set_message("Your notebook has been uploaded.", 4000);
+            updateUploadLink(data.url);
         }).fail(function(jqXHR, textStatus) {
             var msg = '';
             if (jqXHR.status == 401) {
@@ -50,14 +51,14 @@ define(['jquery'], function ($) {
         }, 250);
     };
 
-    var updateUploadLink = function(anacondaCloudID) {
+    var updateUploadLink = function(anacondaCloudURL) {
         if (!IPython.notebook) return;
-        if (!anacondaCloudID) {
-            anacondaCloudID = IPython.notebook.metadata.anacondaCloudID;
+        if (!anacondaCloudURL) {
+            anacondaCloudURL = IPython.notebook.metadata.anacondaCloudURL;
         } else {
-            IPython.notebook.metadata.anacondaCloudId = anacondaCloudID;
+            IPython.notebook.metadata.anacondaCloudURL = anacondaCloudURL;
         }
-        if (!anacondaCloudID) {
+        if (!anacondaCloudURL) {
             return;
         }
         var toolbar = IPython.toolbar.element;
@@ -68,8 +69,9 @@ define(['jquery'], function ($) {
                 $('<span id="nbviewer_span"/>').append(link)
             );
         }
-        link.attr("href", "http://notebooks.anaconda.org/" + anacondaCloudID);
-        link.text("http://notebooks.anaconda.org/" + anacondaCloudID);
+        link.attr("href", + anacondaCloudURL);
+        link.text(anacondaCloudURL);
+        IPython.notebook.save_notebook();
     };
 
     var publishButton = function() {
