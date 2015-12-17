@@ -1,59 +1,50 @@
 import json
 import logging
-import tempfile
 
 from tornado import web
-from tornado.escape import json_encode
 from notebook.utils import url_path_join
 from notebook.base.handlers import APIHandler
-
-from binstar_client import errors
-from binstar_client.utils import get_binstar
-from binstar_client.utils.notebook.uploader import Uploader
+from uploader import Uploader, AccountManager
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
 
-class PublishHandler(APIHandler):
-    def initialize(self):
-        self.aserver_api = get_binstar()
-
-    def upload(self, name, content):
-        with tempfile.NamedTemporaryFile(delete=False) as tfile:
-            tfile.write(json.dumps(content))
-            tfile.close()
-
-            uploader = Uploader(self.aserver_api, tfile.name)
-            uploader.package and uploader.release
-            self.aserver_api.upload(
-                uploader.username, uploader.project, uploader.version,
-                name, open(tfile.name, 'rb'), name.split('.')[-1]
-            )
+class ACLoginHandler(APIHandler):
+    def __init__(self):
+        self.am = AccountManager()
 
     @web.authenticated
-    def post(self, **args):
-        if self._is_logged_in():
-            try:
-                self.upload(
-                    json.loads(self.request.body)['name'],
-                    json.loads(self.request.body)['content']
-                )
-                self.write(json_encode({
-                    'uploaded': True,
-                    'url': 'url'
-                }))
-            except (errors.BinstarError, IOError):
-                self.set_status(500)
+    def get(self, **args):
+        if self.am.is_logged_in():
+            self.finish()
         else:
             self.set_status(401)
 
-    def _is_logged_in(self):
+    @web.authenticated
+    def post(self, **args):
+        json_body = json.loads(self.request.body)
         try:
-            user = self.aserver_api.user()
-            return user
-        except errors.Unauthorized:
-            return False
+            self.am.login(json_body['username'], json_body['password'])
+        except:
+            self.set_status(401)
+
+
+class PublishHandler(APIHandler):
+    @web.authenticated
+    def post(self, **args):
+        json_body = json.loads(self.request.body)
+        uploader = Uploader(
+            json_body['name'],
+            json_body['content'],
+            user=json_body.get('user', None),
+            public=json_body.get('public', True)
+        )
+        try:
+            self.finish(json.dumps(uploader.upload()))
+        except Exception as e:
+            self.log.error(e)
+            self.set_status(400)
 
 
 def load_jupyter_server_extension(nb_app):
@@ -61,6 +52,7 @@ def load_jupyter_server_extension(nb_app):
     webapp = nb_app.web_app
     base_url = webapp.settings['base_url']
     webapp.add_handlers(".*$", [
-        (url_path_join(base_url, r"/ac-publish"), PublishHandler)
+        (url_path_join(base_url, r"/ac-publish"), PublishHandler),
+        (url_path_join(base_url, r"/ac-login"), ACLoginHandler)
     ])
     nb_app.log.info("Enabling nb_anacondanotebook")
