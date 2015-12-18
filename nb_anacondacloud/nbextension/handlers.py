@@ -5,7 +5,7 @@ from binstar_client import errors
 from tornado import web
 from notebook.utils import url_path_join
 from notebook.base.handlers import APIHandler
-from uploader import Uploader, AccountManager
+from .uploader import Uploader, AccountManager
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
