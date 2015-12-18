@@ -1,4 +1,5 @@
-from nbsetuptools import setup, find_static
+from os.path import join, abspath, dirname
+from nbsetuptools import setup
 
 
 setup(
