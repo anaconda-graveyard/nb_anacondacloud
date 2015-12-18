@@ -1,4 +1,14 @@
 define(['jquery'], function ($) {
+    var showModal = function(title, body) {
+        Jupyter.dialog.modal({
+            title: title,
+            body: body,
+            buttons : {
+                "OK": {}
+            }
+        });
+    };
+
     var publishNotebook = function() {
         var anacondacloudid = IPython.notebook.metadata.anacondaCloudID,
             notebookName = IPython.notebook.notebook_name,
@@ -19,20 +29,38 @@ define(['jquery'], function ($) {
         }).done(function(data) {
             IPython.notification_area.get_widget("notebook").
                 set_message("Your notebook has been uploaded.", 4000);
-            updateUploadLink(data.url);
+            updateVisitLink(data.url);
         }).fail(function(jqXHR, textStatus) {
-            var msg = '';
+            var notif, title, body;
             if (jqXHR.status == 401) {
-                msg = 'You must login though anaconda client.';
+                notif = "Unauthorized";
+                title = notif;
+                body = $('<div>');
+                $('<p>').text(
+                    'You are not authorized to complete this actions. ' +
+                    'From the command line run:'
+                ).appendTo(body);
+                $('<pre>').text('anaconda login').appendTo(body);
+                showModal(title, body);
             } else {
-                msg = 'There has been a problem. Try again.';
+                notif = 'Error: ' + jqXHR.statusText;
             }
             IPython.notification_area.get_widget("notebook").
-                danger(msg, 4000);
+                danger(notif, 4000);
         }).always(function(data, textStatus) {
             clearInterval(interval);
         });
         interval = uploadingNotification();
+    };
+
+    var visitNotebook = function() {
+        var url = $(this).attr("data-url");
+        if (typeof url !== 'undefined') {
+            var _window = window.open(url, '_blank');
+            if (_window != undefined) {
+                _window.focus();
+            }
+        }
     };
 
     var uploadingNotification = function() {
@@ -51,7 +79,7 @@ define(['jquery'], function ($) {
         }, 250);
     };
 
-    var updateUploadLink = function(anacondaCloudURL) {
+    var updateVisitLink = function(anacondaCloudURL) {
         if (!IPython.notebook) return;
         if (!anacondaCloudURL) {
             anacondaCloudURL = IPython.notebook.metadata.anacondaCloudURL;
@@ -59,19 +87,11 @@ define(['jquery'], function ($) {
             IPython.notebook.metadata.anacondaCloudURL = anacondaCloudURL;
         }
         if (!anacondaCloudURL) {
-            return;
+            $('#visit_notebook').addClass('disabled');
+        } else {
+            $('#visit_notebook').removeClass('disabled').attr('data-url', anacondaCloudURL);
         }
-        var toolbar = IPython.toolbar.element;
-        var link = toolbar.find("a#nbviewer");
-        if (!link.length) {
-            link = $('<a id="nbviewer" target="_blank"/>');
-            toolbar.append(
-                $('<span id="nbviewer_span"/>').append(link)
-            );
-        }
-        link.attr("href", + anacondaCloudURL);
-        link.text(anacondaCloudURL);
-        IPython.notebook.save_notebook();
+        this.anacondaCloudURL = anacondaCloudURL;
     };
 
     var publishButton = function() {
@@ -86,10 +106,15 @@ define(['jquery'], function ($) {
                     'icon'    : 'fa-cloud-upload',
                     'callback': publishNotebook,
                     'id'      : 'publish_notebook'
-                },
+                }, {
+                    'label'   : 'Visit your notebook',
+                    'icon'    : 'fa-cloud',
+                    'callback': visitNotebook,
+                    'id'      : 'visit_notebook'
+                }
             ]);
         }
-        updateUploadLink();
+        updateVisitLink();
     };
 
     var load_ipython_extension = function () {
