@@ -12,14 +12,16 @@ class Uploader(object):
     _release = None
     _project = None
 
-    def __init__(self, name, content, **kwargs):
+    def __init__(self, name, content, public=True, user=None):
         self.aserver_api = get_binstar()
         self.name = parameterize(name)
         self.content = content
-        self.public = kwargs.get('public', True)
-        self.username = kwargs.get('user', self.aserver_api.user()['login'])
         self.version = time.strftime('%Y.%m.%d.%H%M')
         self.summary = "IPython notebook"
+        self.public = public
+        self.username = user
+        if self.username is None:
+            self.username = self.aserver_api.user()['login']
 
     def upload(self, force=False):
         """
