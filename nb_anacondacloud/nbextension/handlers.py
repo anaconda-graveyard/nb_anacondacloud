@@ -1,6 +1,7 @@
 import json
 import logging
 
+from binstar_client import errors
 from tornado import web
 from notebook.utils import url_path_join
 from notebook.base.handlers import APIHandler
@@ -26,8 +27,10 @@ class ACLoginHandler(APIHandler):
         json_body = json.loads(self.request.body)
         try:
             self.am.login(json_body['username'], json_body['password'])
-        except:
+        except errors.Unauthorized:
             self.set_status(401)
+        except errors.BinstarError as e:
+            self.set_status(400, e)
 
 
 class PublishHandler(APIHandler):
@@ -42,9 +45,11 @@ class PublishHandler(APIHandler):
         )
         try:
             self.finish(json.dumps(uploader.upload()))
-        except Exception as e:
+        except errors.Unauthorized:
+            self.set_status(401, "You must login first.")
+        except errors.BinstarError as e:
             self.log.error(e)
-            self.set_status(400)
+            self.set_status(400, str(e))
 
 
 def load_jupyter_server_extension(nb_app):
