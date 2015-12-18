@@ -16,7 +16,6 @@ class Uploader(object):
         self.aserver_api = get_binstar()
         self.name = parameterize(name)
         self.content = content
-        self.version = time.strftime('%Y.%m.%d.%H%M')
         self.summary = "IPython notebook"
         self.public = public
         self.username = user
@@ -39,9 +38,7 @@ class Uploader(object):
                 self.remove()
                 return self.upload()
             else:
-                msg = "Conflict: {} already exist in {}/{}".format(self.filepath,
-                                                                   self.project,
-                                                                   self.version)
+                msg = "Conflict: {}/{} already exist}".format(self.project, self.version)
                 raise errors.BinstarError(msg)
 
     def content_io(self):
@@ -53,6 +50,10 @@ class Uploader(object):
     def remove(self):
         return self.aserver_api.remove_dist(self, self.username, self.project,
                                             self.version, basename=self.notebook)
+
+    @property
+    def version(self):
+        return time.strftime('%Y.%m.%d.%H%M')
 
     @property
     def project(self):
