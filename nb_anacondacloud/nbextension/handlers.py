@@ -48,7 +48,7 @@ class PublishHandler(APIHandler):
         uploader = Uploader(
             json_body['name'],
             json_body['content'],
-            user=json_body.get('user', None),
+            user=json_body.get('organization', None),
             public=json_body.get('public', True)
         )
         try:
