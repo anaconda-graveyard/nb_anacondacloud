@@ -1,11 +1,20 @@
 define(['jquery', 'base/js/dialog'], function ($, dialog) {
     var publishNotebook = function() {
-        var anacondacloudid = IPython.notebook.metadata.anacondaCloudID,
-            notebookName = IPython.notebook.notebook_name,
+        var organization = this.find('select').val();
+
+        Jupyter.notebook.metadata.anacondaOrganization = organization;
+        Jupyter.notebook.save_notebook()
+            .then(function() {
+                uploadNotebook();
+            });
+    };
+
+    var uploadNotebook = function() {
+        var notebookName = IPython.notebook.notebook_name,
+            anacondaOrganization = Jupyter.notebook.metadata.anacondaOrganization,
             nbj = IPython.notebook.toJSON(),
             interval;
 
-        if (!IPython.notebook) return;
         $.ajax({
             url: "/ac-publish",
             method: 'POST',
@@ -14,11 +23,14 @@ define(['jquery', 'base/js/dialog'], function ($, dialog) {
             processData: false,
             data: JSON.stringify({
                 name: notebookName,
+                organization: anacondaOrganization,
                 content: nbj
             })
         }).done(function(data) {
-            IPython.notification_area.get_widget("notebook").
+            Jupyter.notification_area.get_widget("notebook").
                 set_message("Your notebook has been uploaded.", 4000);
+            Jupyter.notebook.metadata.anacondaCloudURL = data.url;
+            Jupyter.notebook.save_notebook();
             updateVisitLink(data.url);
         }).fail(function(jqXHR, textStatus) {
             var notif, title, body;
@@ -62,18 +74,14 @@ define(['jquery', 'base/js/dialog'], function ($, dialog) {
     };
 
     var updateVisitLink = function(anacondaCloudURL) {
-        if (!IPython.notebook) return;
         if (!anacondaCloudURL) {
             anacondaCloudURL = IPython.notebook.metadata.anacondaCloudURL;
-        } else {
-            IPython.notebook.metadata.anacondaCloudURL = anacondaCloudURL;
         }
         if (!anacondaCloudURL) {
             $('#visit_notebook').addClass('disabled');
         } else {
             $('#visit_notebook').removeClass('disabled').attr('data-url', anacondaCloudURL);
         }
-        this.anacondaCloudURL = anacondaCloudURL;
     };
 
     var configureUpload = function() {
@@ -96,12 +104,15 @@ define(['jquery', 'base/js/dialog'], function ($, dialog) {
                 .appendTo(body);
             if (typeof data.organizations !== 'undefined' && data.organizations.length > 0) {
                 $('<label/>').text('Select your organization').appendTo(body);
-                select = $('<select/>');
+                select = $('<select/>').attr('id', 'select-organization');
                 $('<option/>').attr('value', data.user.login)
                     .text(data.user.name).appendTo(select);
                 data.organizations.forEach(function(org, index) {
                     select.append($('<option/>').attr("value", org.login).text(org.name));
                 });
+                if (IPython.notebook.metadata.anacondaOrganization) {
+                    select.val(IPython.notebook.metadata.anacondaOrganization);
+                }
                 select.appendTo(body);
             }
             dialog.modal({
