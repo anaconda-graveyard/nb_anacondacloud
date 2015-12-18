@@ -1,14 +1,4 @@
-define(['jquery'], function ($) {
-    var showModal = function(title, body) {
-        Jupyter.dialog.modal({
-            title: title,
-            body: body,
-            buttons : {
-                "OK": {}
-            }
-        });
-    };
-
+define(['jquery', 'base/js/dialog'], function ($, dialog) {
     var publishNotebook = function() {
         var anacondacloudid = IPython.notebook.metadata.anacondaCloudID,
             notebookName = IPython.notebook.notebook_name,
@@ -33,15 +23,7 @@ define(['jquery'], function ($) {
         }).fail(function(jqXHR, textStatus) {
             var notif, title, body;
             if (jqXHR.status == 401) {
-                notif = "Unauthorized";
-                title = notif;
-                body = $('<div>');
-                $('<p>').text(
-                    'You are not authorized to complete this actions. ' +
-                    'From the command line run:'
-                ).appendTo(body);
-                $('<pre>').text('anaconda login').appendTo(body);
-                showModal(title, body);
+                showUnauthorized();
             } else {
                 notif = 'Error: ' + jqXHR.statusText;
             }
@@ -94,6 +76,65 @@ define(['jquery'], function ($) {
         this.anacondaCloudURL = anacondaCloudURL;
     };
 
+    var configureUpload = function() {
+        var body,
+            label,
+            select,
+            title,
+            dropdown;
+        IPython.notification_area.get_widget("notebook").set_message("Loading", 2000);
+        $.ajax({
+            url: "/ac-login",
+            method: 'GET',
+            dataType: 'json',
+            contentType: 'application/json; charset=utf-8',
+        }).done(function(data) {
+            title = "Upload " + IPython.notebook.notebook_name;
+            body = $('<div>');
+            $('<p>').text(
+                'You are going to save and upload ' + IPython.notebook.notebook_name + '.')
+                .appendTo(body);
+            if (typeof data.organizations !== 'undefined' && data.organizations.length > 0) {
+                $('<label/>').text('Select your organization').appendTo(body);
+                select = $('<select/>');
+                $('<option/>').attr('value', data.user.login)
+                    .text(data.user.name).appendTo(select);
+                data.organizations.forEach(function(org, index) {
+                    select.append($('<option/>').attr("value", org.login).text(org.name));
+                });
+                select.appendTo(body);
+            }
+            dialog.modal({
+                title: title,
+                body: body,
+                buttons : {
+                    "OK": {class: 'btn-primary', click: publishNotebook},
+                    "Cancel": {}
+                }
+            });
+        }).fail(function(jqXHR, textStatus) {
+            showUnauthorized();
+        });
+    };
+
+    var showUnauthorized = function() {
+        var title = "Unauthorized",
+            body = $('<div>');
+        IPython.notification_area.get_widget("notebook").danger(title, 2000);
+        $('<p>').text(
+            'You are not authorized to complete this action. ' +
+            'From the command line run:'
+        ).appendTo(body);
+        $('<pre>').text('anaconda login').appendTo(body);
+        dialog.modal({
+            title: title,
+            body: body,
+            buttons : {
+                "OK": {}
+            }
+        });
+    };
+
     var publishButton = function() {
         if (!IPython.toolbar) {
             $([IPython.events]).on("app_initialized.NotebookApp", publishButton);
@@ -104,7 +145,7 @@ define(['jquery'], function ($) {
                 {
                     'label'   : 'Publish your notebook into Anaconda.org',
                     'icon'    : 'fa-cloud-upload',
-                    'callback': publishNotebook,
+                    'callback': configureUpload,
                     'id'      : 'publish_notebook'
                 }, {
                     'label'   : 'Visit your notebook',

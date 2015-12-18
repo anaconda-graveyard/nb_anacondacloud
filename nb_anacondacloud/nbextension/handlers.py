@@ -11,14 +11,16 @@ log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
 
 
-class ACLoginHandler(APIHandler):
-    def __init__(self):
-        self.am = AccountManager()
+class WhoAmIHandler(APIHandler):
+    _am = None
 
     @web.authenticated
     def get(self, **args):
         if self.am.is_logged_in():
-            self.finish()
+            self.finish(json.dumps({
+                'user': self.am.user,
+                'organizations': self.am.organizations
+            }))
         else:
             self.set_status(401)
 
@@ -31,6 +33,12 @@ class ACLoginHandler(APIHandler):
             self.set_status(401)
         except errors.BinstarError as e:
             self.set_status(400, e)
+
+    @property
+    def am(self):
+        if self._am is None:
+            self._am = AccountManager()
+        return self._am
 
 
 class PublishHandler(APIHandler):
@@ -58,6 +66,6 @@ def load_jupyter_server_extension(nb_app):
     base_url = webapp.settings['base_url']
     webapp.add_handlers(".*$", [
         (url_path_join(base_url, r"/ac-publish"), PublishHandler),
-        (url_path_join(base_url, r"/ac-login"), ACLoginHandler)
+        (url_path_join(base_url, r"/ac-login"), WhoAmIHandler)
     ])
     nb_app.log.info("Enabling nb_anacondanotebook")

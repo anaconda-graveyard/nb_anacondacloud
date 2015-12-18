@@ -89,7 +89,7 @@ class AccountManager(object):
         self.aserver_api = get_binstar()
 
     def is_logged_in(self):
-        return self.user is True
+        return self.user is not None
 
     def login(self, username, password):
         token = self.get_token(username, password)
@@ -107,11 +107,19 @@ class AccountManager(object):
     def user(self):
         if self._user is None:
             try:
-                self._user = self.aserver_api.get_user()
-                return self._user
+                self._user = self.aserver_api.user()
             except errors.Unauthorized:
                 self._user = None
-                return False
+        return self._user
+
+    @property
+    def organizations(self):
+        output = []
+        for org in self.aserver_api.user_orgs():
+            output.append(
+                {'name': org['name'], 'login': org['login']}
+            )
+        return output
 
 
 class FakeArgs(object):
