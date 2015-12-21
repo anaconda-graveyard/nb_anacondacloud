@@ -115,6 +115,10 @@ define(['jquery', 'base/js/dialog'], function ($, dialog) {
                 }
                 select.appendTo(body);
             }
+            body.append(
+                "<p><strong>Note:</strong> your notebook will be public." +
+                "You can make it private in the settings page in Anaconda.org."
+            );
             dialog.modal({
                 title: title,
                 body: body,
