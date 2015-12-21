@@ -1,19 +1,27 @@
 define(['jquery', 'base/js/dialog'], function ($, dialog) {
     var publishNotebook = function() {
-        var organization = this.find('select').val();
+        var organization = this.find('select').val(),
+            attachEnv = this.find('#attach-environment').is(':checked');
 
         Jupyter.notebook.metadata.anacondaOrganization = organization;
         Jupyter.notebook.save_notebook()
             .then(function() {
-                uploadNotebook();
+                uploadNotebook(attachEnv);
             });
     };
 
-    var uploadNotebook = function() {
+    var uploadNotebook = function(attachEnv) {
         var notebookName = IPython.notebook.notebook_name,
             anacondaOrganization = Jupyter.notebook.metadata.anacondaOrganization,
             nbj = IPython.notebook.toJSON(),
-            interval;
+            interval,
+            envName;
+
+        if (attachEnv) {
+            envName: Jupyter.notebook.kernel.name;
+        } else {
+            envName: null;
+        }
 
         $.ajax({
             url: "/ac-publish",
@@ -24,7 +32,8 @@ define(['jquery', 'base/js/dialog'], function ($, dialog) {
             data: JSON.stringify({
                 name: notebookName,
                 organization: anacondaOrganization,
-                content: nbj
+                content: nbj,
+                envName: envName
             })
         }).done(function(data) {
             Jupyter.notification_area.get_widget("notebook").
@@ -115,6 +124,13 @@ define(['jquery', 'base/js/dialog'], function ($, dialog) {
                 }
                 select.appendTo(body);
             }
+            body.append(
+                "<p>" +
+                "<label>" +
+                "<input type='checkbox' name='attach-environment' id='attach-environment'>" +
+                "Attach environment" +
+                "</input></label></p>"
+            )
             body.append(
                 "<p><strong>Note:</strong> your notebook will be public." +
                 "You can make it private in the settings page in Anaconda.org."

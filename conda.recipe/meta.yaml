@@ -12,6 +12,7 @@ requirements:
     - anaconda-client
     - nbsetuptools
     - notebook
+    - pyyaml
 
 source:
   path: ../

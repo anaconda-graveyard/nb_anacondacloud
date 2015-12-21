@@ -49,7 +49,8 @@ class PublishHandler(APIHandler):
             json_body['name'],
             json_body['content'],
             user=json_body.get('organization', None),
-            public=json_body.get('public', True)
+            public=json_body.get('public', True),
+            env_name=json_body.get('envName', None)
         )
         try:
             self.finish(json.dumps(uploader.upload()))

@@ -1,7 +1,10 @@
+import json
 import platform
 import re
 import StringIO
+from subprocess import check_output, CalledProcessError
 import time
+import yaml
 from binstar_client import errors
 from binstar_client.utils import get_binstar, store_token
 from binstar_client.utils.notebook.inflection import parameterize
@@ -12,13 +15,14 @@ class Uploader(object):
     _release = None
     _project = None
 
-    def __init__(self, name, content, public=True, user=None):
+    def __init__(self, name, content, public=True, user=None, env_name=None):
         self.aserver_api = get_binstar()
         self.name = parameterize(name)
         self.content = content
         self.summary = "IPython notebook"
         self.public = public
         self.username = user
+        self.env_name = env_name
         if self.username is None:
             self.username = self.aserver_api.user()['login']
 
@@ -38,12 +42,29 @@ class Uploader(object):
                 self.remove()
                 return self.upload()
             else:
-                msg = "Conflict: {}/{} already exist}".format(self.project, self.version)
+                msg = "Conflict: {}/{} already exist".format(self.project, self.version)
                 raise errors.BinstarError(msg)
+
+    def attach_env(self, content):
+        content = json.loads(content)
+        content['metadata']['environment'] = json.dumps(
+            yaml.load(self._exec('conda env export -n {}'.format(self.env_name)))
+        )
+        return json.dumps(content)
+
+    def _exec(self, cmd):
+        try:
+            output = check_output(cmd.split())
+        except CalledProcessError as exc:
+            output = exc.output
+        return output
 
     def content_io(self):
         _notebook = StringIO.StringIO()
-        _notebook.write(self.content)
+        if self.env_name is None:
+            _notebook.write(self.content)
+        else:
+            _notebook.write(self.attach_env(self.content))
         _notebook.seek(0)
         return _notebook
 

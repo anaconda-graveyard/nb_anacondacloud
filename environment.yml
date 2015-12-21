@@ -3,5 +3,6 @@ channels:
   - anaconda-notebook
 dependencies:
   - anaconda-client
-  - notebook
   - nbsetuptools
+  - notebook
+  - pyyaml
