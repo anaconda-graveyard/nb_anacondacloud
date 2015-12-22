@@ -1,6 +1,6 @@
 package:
   name: nb_anacondacloud
-  version: 0.1.0
+  version: 0.1.1
 
 requirements:
   build:
