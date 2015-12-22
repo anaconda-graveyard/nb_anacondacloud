@@ -17,10 +17,11 @@ define(['jquery', 'base/js/dialog'], function ($, dialog) {
             interval,
             envName;
 
+
         if (attachEnv) {
-            envName: Jupyter.notebook.kernel.name;
+            envName = Jupyter.notebook.kernel.name;
         } else {
-            envName: null;
+            envName = null;
         }
 
         $.ajax({
@@ -127,7 +128,7 @@ define(['jquery', 'base/js/dialog'], function ($, dialog) {
             body.append(
                 "<p>" +
                 "<label>" +
-                "<input type='checkbox' name='attach-environment' id='attach-environment'>" +
+                "<input type='checkbox' name='attach-environment' id='attach-environment' checked>" +
                 "Attach environment" +
                 "</input></label></p>"
             )

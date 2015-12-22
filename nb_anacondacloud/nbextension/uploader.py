@@ -1,4 +1,5 @@
 import json
+import logging
 import platform
 import re
 try:
@@ -11,6 +12,8 @@ import yaml
 from binstar_client import errors
 from binstar_client.utils import get_binstar, store_token
 from binstar_client.utils.notebook.inflection import parameterize
+
+log = logging.getLogger(__name__)
 
 
 class Uploader(object):
@@ -49,25 +52,26 @@ class Uploader(object):
                 raise errors.BinstarError(msg)
 
     def attach_env(self, content):
-        content = json.loads(content)
-        content['metadata']['environment'] = json.dumps(
-            yaml.load(self._exec('conda env export -n {}'.format(self.env_name)))
+        content['metadata']['environment'] = yaml.load(
+            self._exec('conda env export -n {}'.format(self.env_name))
         )
-        return json.dumps(content)
+        return content
 
     def _exec(self, cmd):
         try:
             output = check_output(cmd.split())
-        except CalledProcessError as exc:
-            output = exc.output
+        except CalledProcessError as e:
+            log.error(e)
+            output = {}
         return output
 
     def content_io(self):
-        _notebook = StringIO.StringIO()
-        if self.env_name is None:
-            _notebook.write(self.content)
-        else:
-            _notebook.write(self.attach_env(self.content))
+        _notebook = StringIO()
+
+        if self.env_name is not None:
+            self.content = self.attach_env(self.content)
+
+        _notebook.write(json.dumps(self.content))
         _notebook.seek(0)
         return _notebook
 
