@@ -10,6 +10,7 @@ requirements:
     - setuptools
   run:
     - anaconda-client
+    - nb_config_manager
     - nbsetuptools
     - notebook
     - pyyaml
