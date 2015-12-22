@@ -1,7 +1,10 @@
 import json
 import platform
 import re
-import StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 from subprocess import check_output, CalledProcessError
 import time
 import yaml
