@@ -5,7 +5,7 @@ import re
 try:
     from StringIO import StringIO
 except ImportError:
-    from io import StringIO
+    from io import BytesIO as StringIO
 from subprocess import check_output, CalledProcessError
 import time
 import yaml
@@ -42,7 +42,7 @@ class Uploader(object):
         try:
             return self.aserver_api.upload(self.username, self.project, self.version,
                                            self.name, self.content_io(),
-                                           re.sub('\-ipynb$', '', self.name))
+                                           "ipynb")
         except errors.Conflict:
             if force:
                 self.remove()
@@ -71,7 +71,7 @@ class Uploader(object):
         if self.env_name is not None:
             self.content = self.attach_env(self.content)
 
-        _notebook.write(json.dumps(self.content))
+        _notebook.write(json.dumps(self.content).encode())
         _notebook.seek(0)
         return _notebook
 
