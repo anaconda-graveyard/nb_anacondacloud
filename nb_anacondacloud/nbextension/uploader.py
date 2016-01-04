@@ -42,7 +42,7 @@ class Uploader(object):
         try:
             return self.aserver_api.upload(self.username, self.project, self.version,
                                            self.name, self.content_io(),
-                                           re.sub('\-ipynb$', '', self.name))
+                                           "ipynb")
         except errors.Conflict:
             if force:
                 self.remove()
