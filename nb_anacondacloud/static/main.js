@@ -122,6 +122,7 @@ function ($, dialog, Jupyter) {
             form,
             name,
             modal,
+            attach,
             select,
             summary,
             adminUrl,
@@ -234,18 +235,18 @@ function ($, dialog, Jupyter) {
             .appendTo(form);
 
             // whether to include the environment in metadata
+            attach = $('<input/>', {type: 'checkbox'}).prop({
+                checked: metadata('attach-environment')})
+                .on("change", function(){
+                  metadata('attach-environment', attach.prop('checked'));
+                });
+
             $('<div/>', {'class': 'form-group'}).append(
                 $('<label/>', {'class': 'control-label col-sm-3'})
                     .text('Environment'),
                 $('<div/>', {'class': 'col-sm-9'}).append(
                     $('<div/>', {'class': 'checkbox'}).append(
-                        $('<label/>').append(
-                            $('<input/>', {
-                                type: 'checkbox',
-                                name: 'attach-environment',
-                                id: 'attach-environment',
-                                checked: true
-                            }),
+                        $('<label/>').append(attach,
                             $('<span/>').text('Attach conda environment')))))
             .appendTo(form);
 
