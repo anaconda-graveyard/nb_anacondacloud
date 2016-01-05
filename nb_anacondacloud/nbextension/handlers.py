@@ -49,13 +49,8 @@ class PublishHandler(APIHandler):
     @web.authenticated
     def post(self, **args):
         json_body = json_decode(self.request.body)
-        uploader = Uploader(
-            json_body['name'],
-            json_body['content'],
-            user=json_body.get('organization', None),
-            public=json_body.get('public', True),
-            env_name=json_body.get('envName', None)
-        )
+        nb = json_body['content']
+        uploader = Uploader(json_body['name'], nb)
         try:
             self.finish(json.dumps(uploader.upload()))
         except errors.Unauthorized:
@@ -66,11 +61,12 @@ class PublishHandler(APIHandler):
 
 
 def load_jupyter_server_extension(nb_app):
-    """Load the nb anaconda client extension"""
+    """Load the nb_anacondacloud client extension"""
     webapp = nb_app.web_app
     base_url = webapp.settings['base_url']
+    ns = r'anaconda-cloud'
     webapp.add_handlers(".*$", [
-        (url_path_join(base_url, r"/ac-publish"), PublishHandler),
-        (url_path_join(base_url, r"/ac-login"), WhoAmIHandler)
+        (url_path_join(base_url, ns, r"publish"), PublishHandler),
+        (url_path_join(base_url, ns, r"login"), WhoAmIHandler)
     ])
-    nb_app.log.info("Enabling nb_anacondanotebook")
+    nb_app.log.info("Enabling nb_anacondcloud")

@@ -18,14 +18,13 @@ class Uploader(object):
     _release = None
     _project = None
 
-    def __init__(self, name, content, public=True, user=None, env_name=None):
+    def __init__(self, name, content):
         self.aserver_api = get_binstar()
         self.name = parameterize(name)
         self.content = content
-        self.summary = "IPython notebook"
-        self.public = public
-        self.username = user
-        self.env_name = env_name
+        self.summary = self.metadata.get("summary", "Jupyter Notebook")
+        self.username = self.metadata.get("organization", None)
+        self.env_name = self.metadata.get("environment", None)
         if self.username is None:
             self.username = self.aserver_api.user()['login']
 
@@ -37,19 +36,20 @@ class Uploader(object):
         """
         self.package and self.release
         try:
-            return self.aserver_api.upload(self.username,
-                                           self.project,
-                                           self.version,
-                                           self.name,
-                                           self.content_io(),
-                                           "ipynb")
+            return self.aserver_api.upload(
+                self.username,
+                self.project,
+                self.version,
+                self.name,
+                self.content_io(),
+                "ipynb")
         except errors.Conflict:
             if force:
                 self.remove()
                 return self.upload()
             else:
-                msg = "Conflict: {}/{} already exist".format(self.project,
-                                                             self.version)
+                msg = "Conflict: {}/{} already exist".format(
+                    self.project, self.version)
                 raise errors.BinstarError(msg)
 
     def attach_env(self, content):
@@ -93,33 +93,47 @@ class Uploader(object):
             return self._project
 
     @property
+    def metadata(self):
+        return self.content.get("metadata", {}).get("anaconda-cloud", {})
+
+    @property
+    def notebook_attrs(self):
+        if 'thumbnail' in self.metadata:
+            return {'thumbnail': self.metadata["thumbnail"]}
+        else:
+            return {}
+
+    @property
     def package(self):
         if self._package is None:
             try:
-                self._package = self.aserver_api.package(self.username,
-                                                         self.project)
+                self._package = self.aserver_api.package(
+                    self.username,
+                    self.project)
             except errors.NotFound:
                 self._package = self.aserver_api.add_package(
                     self.username,
                     self.project,
                     summary=self.summary,
-                    attrs={})
+                    attrs=self.notebook_attrs)
         return self._package
 
     @property
     def release(self):
         if self._release is None:
             try:
-                self._release = self.aserver_api.release(self.username,
-                                                         self.project,
-                                                         self.version)
+                self._release = self.aserver_api.release(
+                    self.username,
+                    self.project,
+                    self.version)
             except errors.NotFound:
-                self._release = self.aserver_api.add_release(self.username,
-                                                             self.project,
-                                                             self.version,
-                                                             None,
-                                                             None,
-                                                             None)
+                self._release = self.aserver_api.add_release(
+                    self.username,
+                    self.project,
+                    self.version,
+                    None,
+                    None,
+                    None)
         return self._release
 
 
