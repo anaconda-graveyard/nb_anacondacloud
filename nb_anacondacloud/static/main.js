@@ -408,14 +408,13 @@ function ($, dialog, Jupyter) {
         updateVisitLink();
     }
 
-    function load_jupyter_extension() {
+    function load_ipython_extension() {
         updateToolbar();
     }
 
 
     // export new and old API entrypoints
     return {
-      load_ipython_extension: load_jupyter_extension,
-      load_jupyter_extension: load_jupyter_extension,
+      load_ipython_extension: load_ipython_extension
     };
 });
