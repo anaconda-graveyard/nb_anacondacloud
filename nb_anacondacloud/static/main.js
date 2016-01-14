@@ -139,7 +139,7 @@ function ($, dialog, Jupyter) {
             contentType: 'application/json; charset=utf-8',
         }).done(function(data) {
             body = $('<div/>');
-            name = IPython.notebook.notebook_name.replace(/.ipynb$/, '');
+            name = Jupyter.notebook.notebook_name.replace(/.ipynb$/, '');
 
             // avoid any surprises with user events firing in the background
             Jupyter.notebook.keyboard_manager.register_events(body);
