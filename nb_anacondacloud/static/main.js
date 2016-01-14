@@ -108,7 +108,7 @@ function ($, dialog, Jupyter) {
     function thumbnailable(){
         // find good candidate thumbnails
         return $('#notebook')
-          .find('img, canvas, svg')
+          .find('img, canvas')
           .filter(function(){
             return this.clientWidth > THUMBNAIL_MIN_DIM &&
               this.clientHeight > THUMBNAIL_MIN_DIM;
@@ -260,20 +260,27 @@ function ($, dialog, Jupyter) {
                   ctx,
                   uri;
 
-                switch(this.tagName.toLowerCase()){
-                  case 'canvas':
-                    canvas = this;
-                    uri = canvas.toDataURL();
-                    break;
-                  case 'img':
-                    canvas = $('<canvas/>').css({display: 'none'});
-                    ctx = canvas[0].getContext('2d');
-                    ctx.canvas.width = this.clientWidth;
-                    ctx.canvas.height = this.clientHeight;
-                    ctx.drawImage(this, 0, 0);
-                    uri = canvas[0].toDataURL();
-                    canvas.remove();
-                    break;
+                try{
+                    switch(this.tagName.toLowerCase()){
+                      case 'canvas':
+                        canvas = this;
+                        uri = canvas.toDataURL();
+                        break;
+                      case 'img':
+                        canvas = $('<canvas/>').css({display: 'none'});
+                        ctx = canvas[0].getContext('2d');
+                        ctx.canvas.width = this.clientWidth;
+                        ctx.canvas.height = this.clientHeight;
+                        ctx.drawImage(this, 0, 0);
+                        uri = canvas[0].toDataURL();
+                        canvas.remove();
+                        break;
+                      default:
+                        return;
+                    }
+                }catch (err){
+                    console.log("couldn't snapshot", this, "perhaps execute the cell, perhaps?", err);
+                    return;
                 }
 
                 thumbnails.push($('<li/>', {value: uri}).append(
