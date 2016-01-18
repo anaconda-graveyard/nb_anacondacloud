@@ -37,15 +37,19 @@ class Uploader(object):
         """
         self.package and self.release
         try:
-            return self.aserver_api.upload(self.username, self.project, self.version,
-                                           self.name, self.content_io(),
+            return self.aserver_api.upload(self.username,
+                                           self.project,
+                                           self.version,
+                                           self.name,
+                                           self.content_io(),
                                            "ipynb")
         except errors.Conflict:
             if force:
                 self.remove()
                 return self.upload()
             else:
-                msg = "Conflict: {}/{} already exist".format(self.project, self.version)
+                msg = "Conflict: {}/{} already exist".format(self.project,
+                                                             self.version)
                 raise errors.BinstarError(msg)
 
     def attach_env(self, content):
@@ -74,7 +78,8 @@ class Uploader(object):
 
     def remove(self):
         return self.aserver_api.remove_dist(self, self.username, self.project,
-                                            self.version, basename=self.notebook)
+                                            self.version,
+                                            basename=self.notebook)
 
     @property
     def version(self):
@@ -91,21 +96,30 @@ class Uploader(object):
     def package(self):
         if self._package is None:
             try:
-                self._package = self.aserver_api.package(self.username, self.project)
+                self._package = self.aserver_api.package(self.username,
+                                                         self.project)
             except errors.NotFound:
-                self._package = self.aserver_api.add_package(self.username, self.project,
-                                                             summary=self.summary,
-                                                             attrs={})
+                self._package = self.aserver_api.add_package(
+                    self.username,
+                    self.project,
+                    summary=self.summary,
+                    attrs={})
         return self._package
 
     @property
     def release(self):
         if self._release is None:
             try:
-                self._release = self.aserver_api.release(self.username, self.project, self.version)
+                self._release = self.aserver_api.release(self.username,
+                                                         self.project,
+                                                         self.version)
             except errors.NotFound:
-                self._release = self.aserver_api.add_release(self.username, self.project,
-                                                             self.version, None, None, None)
+                self._release = self.aserver_api.add_release(self.username,
+                                                             self.project,
+                                                             self.version,
+                                                             None,
+                                                             None,
+                                                             None)
         return self._release
 
 
