@@ -1,5 +1,8 @@
 import os
 import glob
+import sys
+import shutil
+import subprocess
 
 try:
     from unittest.mock import patch
@@ -8,6 +11,7 @@ except ImportError:
     from mock import patch
 
 from notebook import jstest
+from binstar_client.utils import dirs
 
 here = os.path.dirname(__file__)
 
@@ -44,6 +48,27 @@ class NBAnacondaCloudTestController(jstest.JSController):
 
         if extra_args is not None:
             self.cmd = self.cmd + extra_args
+
+    def _init_server(self):
+        # copy current user token into the temp directory
+        home = os.environ["HOME"]
+        _data_dir = "".join([self.home.name, dirs.user_data_dir[len(home):]])
+
+        shutil.copytree(
+            dirs.user_data_dir,
+            _data_dir
+        )
+
+        with patch.dict(os.environ, self.env):
+            subprocess.check_call([
+                sys.executable, "-m", "nb_anacondacloud.setup",
+                "install",
+                "--enable",
+                "--verbose", "DEBUG",
+                "--prefix", self.config_dir.name,
+            ])
+
+        super(NBAnacondaCloudTestController, self)._init_server()
 
 
 def prepare_controllers(options):

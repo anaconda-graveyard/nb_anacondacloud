@@ -4,7 +4,8 @@
   var system = require('system');
 
   var root = casper,
-    _img = 0;
+    _img = 0,
+    _shotDir = "unnamed";
 
   function nextId(){
     return ("000" + (_img++)).slice(-4);
@@ -15,11 +16,24 @@
   }
 
   root.screenshot = function(message){
-    this.captureSelector(
-      "nb_anacondacloud/static/screenshots/" + nextId() + "_" + slug(message) + ".png",
+    this.captureSelector([
+        "nb_anacondacloud/static/screenshots/",
+         _shotDir,
+         "/",
+         nextId(),
+         "_",
+         slug(message),
+         ".png",
+      ].join(""),
       "body"
     );
-  }
+  };
+
+
+  root.screenshot.init = function(ns){
+    _shotDir = ns;
+    _img = 0;
+  };
 
   root.canSeeAndClick = function(message, visible, click){
     return this
@@ -63,6 +77,14 @@
       'Markdown("# Hello World!")'
     ].join("\n"));
     this.execute_cell_then(0);
+
+    this.append_cell();
+  };
+
+  root.runCell = function(idx, lines){
+    // the actual test
+    this.set_cell_text(idx, lines.join("\n"));
+    this.execute_cell_then(idx);
   }
 
 }).call(this);

@@ -101,12 +101,14 @@ define(['jquery', 'base/js/dialog'], function ($, dialog) {
             title,
             dropdown;
         IPython.notification_area.get_widget("notebook").set_message("Loading", 2000);
+        console.error("NBAC: ATTEMPTING LOGIN");
         $.ajax({
             url: "/ac-login",
             method: 'GET',
             dataType: 'json',
             contentType: 'application/json; charset=utf-8',
         }).done(function(data) {
+            console.error("NBAC: LOGGED IN");
             title = "Upload " + IPython.notebook.notebook_name;
             body = $('<div>');
             $('<p>').text(
@@ -145,6 +147,7 @@ define(['jquery', 'base/js/dialog'], function ($, dialog) {
                 }
             });
         }).fail(function(jqXHR, textStatus) {
+            console.error("NBAC: FAILED LOGGED IN");
             showUnauthorized();
         });
     };
