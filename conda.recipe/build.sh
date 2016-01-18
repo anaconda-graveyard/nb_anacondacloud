@@ -1,2 +1,2 @@
 #!/bin/bash
-$PYTHON setup.py install
+"${PREFIX}/bin/python" setup.py install

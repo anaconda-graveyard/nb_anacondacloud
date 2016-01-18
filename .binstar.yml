@@ -13,10 +13,7 @@ engine:
   - python=3.5
 
 install:
-  - conda build conda.recipe -c anaconda-notebook
+  - conda build conda.recipe -c anaconda-notebook -c javascript -c mutirri -c jakirkham -c bokeh
   - conda install nb_anacondacloud --use-local -c anaconda-notebook
-
-test:
-  - python -m unittest discover
 
 build_targets: conda

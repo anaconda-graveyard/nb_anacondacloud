@@ -2,6 +2,10 @@ package:
   name: nb_anacondacloud
   version: 0.1.1
 
+build:
+  number: {{ environ.get('GIT_DESCRIBE_NUMBER', 0) }}
+  string: py{% if environ.get('GIT_DESCRIBE_NUMBER', '0') == '0' %}{{ environ.get('PY_VER').replace('.', '') }}_0{% else %}{{ environ.get('PY_VER').replace('.', '') }}_{{ environ.get('GIT_BUILD_STR', 'GIT_STUB') }}{% endif %}
+
 requirements:
   build:
     - anaconda-client
@@ -14,6 +18,26 @@ requirements:
     - nbsetuptools
     - notebook
     - pyyaml
+    - python
+
+test:
+  files:
+    - package.json
+  requires:
+    - anaconda-client
+    - coverage
+    - flake8
+    - funcsigs
+    - mock
+    - nb_config_manager
+    - nbsetuptools
+    - nodejs
+    - nose
+    - notebook
+    - notebook
+    - python
+    - pyyaml
+    - requests
 
 source:
   path: ../

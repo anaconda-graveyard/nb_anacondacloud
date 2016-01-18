@@ -10,3 +10,5 @@ dist/
 node_modules/
 *.xunit.xml
 npm-debug.log
+.jupyter-jstest.log
+screenshots/
