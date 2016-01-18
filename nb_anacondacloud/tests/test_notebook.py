@@ -49,6 +49,12 @@ class NBAnacondaCloudTestController(jstest.JSController):
         if extra_args is not None:
             self.cmd = self.cmd + extra_args
 
+    def cleanup(self):
+        captured = self.stream_capturer.get_buffer().decode('utf-8', 'replace')
+        with open(".jupyter-jstest.log", "w") as fp:
+            fp.write(captured)
+        super(NBAnacondaCloudTestController, self).cleanup()
+
     def _init_server(self):
         # copy current user token into the temp directory
         home = os.environ["HOME"]
@@ -68,7 +74,45 @@ class NBAnacondaCloudTestController(jstest.JSController):
                 "--prefix", self.config_dir.name,
             ])
 
-        super(NBAnacondaCloudTestController, self)._init_server()
+        self.env.update(NB_ANACONDACLOUD_TEST="MOCK_ALL")
+
+        # copied from notebook 4.1
+        self.server_command = command = [
+            sys.executable,
+            '-m', 'notebook',
+            '--no-browser',
+            '--debug',
+            '--notebook-dir', self.nbdir.name,
+            '--NotebookApp.base_url=%s' % self.base_url,
+            # """--NotebookApp.server_extensions=["%s"]""" % (
+            #     "nb_anacondacloud.nbextension"),
+            # """--NotebookApp.config_manager_class=%s""" % (
+            #     "nb_config_manager.EnvironmentConfigManager"),
+        ]
+        # ipc doesn't work on Windows, and darwin has crazy-long temp paths,
+        # which run afoul of ipc's maximum path length.
+        if sys.platform.startswith('linux'):
+            command.append('--KernelManager.transport=ipc')
+        self.stream_capturer = c = jstest.StreamCapturer()
+        c.start()
+        env = os.environ.copy()
+        env.update(self.env)
+        if self.engine == 'phantomjs':
+            env['IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS'] = '1'
+        self.server = subprocess.Popen(
+            command,
+            stdout=c.writefd,
+            stderr=subprocess.STDOUT,
+            cwd=self.nbdir.name,
+            env=env,
+        )
+        with patch.dict('os.environ', {'HOME': self.home.name}):
+            runtime_dir = jstest.jupyter_runtime_dir()
+        self.server_info_file = os.path.join(
+            runtime_dir,
+            'nbserver-%i.json' % self.server.pid
+        )
+        self._wait_for_server()
 
 
 def prepare_controllers(options):

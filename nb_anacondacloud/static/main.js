@@ -1,4 +1,5 @@
-define(['jquery', 'base/js/dialog'], function ($, dialog) {
+define(['jquery', 'base/js/dialog', 'base/js/namespace'],
+function ($, dialog, Jupyter) {
     var publishNotebook = function() {
         var organization = this.find('select').val(),
             attachEnv = this.find('#attach-environment').is(':checked');
@@ -11,9 +12,9 @@ define(['jquery', 'base/js/dialog'], function ($, dialog) {
     };
 
     var uploadNotebook = function(attachEnv) {
-        var notebookName = IPython.notebook.notebook_name,
+        var notebookName = Jupyter.notebook.notebook_name,
             anacondaOrganization = Jupyter.notebook.metadata.anacondaOrganization,
-            nbj = IPython.notebook.toJSON(),
+            nbj = Jupyter.notebook.toJSON(),
             interval,
             envName;
 
@@ -25,7 +26,7 @@ define(['jquery', 'base/js/dialog'], function ($, dialog) {
         }
 
         $.ajax({
-            url: "/ac-publish",
+            url: Jupyter.notebook.base_url + "ac-publish/",
             method: 'POST',
             dataType: 'json',
             contentType: 'application/json; charset=utf-8',
@@ -49,7 +50,7 @@ define(['jquery', 'base/js/dialog'], function ($, dialog) {
             } else {
                 notif = 'Error: ' + jqXHR.statusText;
             }
-            IPython.notification_area.get_widget("notebook").
+            Jupyter.notification_area.get_widget("notebook").
                 danger(notif, 4000);
         }).always(function(data, textStatus) {
             clearInterval(interval);
@@ -71,7 +72,7 @@ define(['jquery', 'base/js/dialog'], function ($, dialog) {
         var index = 0,
             pattern = ['-', '\\', '|', '/'],
             _updateString = function(i) {
-                IPython.notification_area.
+                Jupyter.notification_area.
                     get_widget('notebook').
                     warning('Uploading ' + pattern[i]);
             }
@@ -85,7 +86,7 @@ define(['jquery', 'base/js/dialog'], function ($, dialog) {
 
     var updateVisitLink = function(anacondaCloudURL) {
         if (!anacondaCloudURL) {
-            anacondaCloudURL = IPython.notebook.metadata.anacondaCloudURL;
+            anacondaCloudURL = Jupyter.notebook.metadata.anacondaCloudURL;
         }
         if (!anacondaCloudURL) {
             $('#visit_notebook').addClass('disabled');
@@ -100,19 +101,17 @@ define(['jquery', 'base/js/dialog'], function ($, dialog) {
             select,
             title,
             dropdown;
-        IPython.notification_area.get_widget("notebook").set_message("Loading", 2000);
-        console.error("NBAC: ATTEMPTING LOGIN");
+        Jupyter.notification_area.get_widget("notebook").set_message("Loading", 2000);
         $.ajax({
-            url: "/ac-login",
+            url: Jupyter.notebook.base_url + "ac-login/",
             method: 'GET',
             dataType: 'json',
             contentType: 'application/json; charset=utf-8',
         }).done(function(data) {
-            console.error("NBAC: LOGGED IN");
-            title = "Upload " + IPython.notebook.notebook_name;
+            title = "Upload " + Jupyter.notebook.notebook_name;
             body = $('<div>');
             $('<p>').text(
-                'You are going to save and upload ' + IPython.notebook.notebook_name + '.')
+                'You are going to save and upload ' + Jupyter.notebook.notebook_name + '.')
                 .appendTo(body);
             if (typeof data.organizations !== 'undefined' && data.organizations.length > 0) {
                 $('<label/>').text('Select your organization').appendTo(body);
@@ -122,8 +121,8 @@ define(['jquery', 'base/js/dialog'], function ($, dialog) {
                 data.organizations.forEach(function(org, index) {
                     select.append($('<option/>').attr("value", org.login).text(org.name));
                 });
-                if (IPython.notebook.metadata.anacondaOrganization) {
-                    select.val(IPython.notebook.metadata.anacondaOrganization);
+                if (Jupyter.notebook.metadata.anacondaOrganization) {
+                    select.val(Jupyter.notebook.metadata.anacondaOrganization);
                 }
                 select.appendTo(body);
             }
@@ -147,7 +146,6 @@ define(['jquery', 'base/js/dialog'], function ($, dialog) {
                 }
             });
         }).fail(function(jqXHR, textStatus) {
-            console.error("NBAC: FAILED LOGGED IN");
             showUnauthorized();
         });
     };
@@ -155,7 +153,7 @@ define(['jquery', 'base/js/dialog'], function ($, dialog) {
     var showUnauthorized = function() {
         var title = "Unauthorized",
             body = $('<div>');
-        IPython.notification_area.get_widget("notebook").danger(title, 2000);
+        Jupyter.notification_area.get_widget("notebook").danger(title, 2000);
         $('<p>').text(
             'You are not authorized to complete this action. ' +
             'From the command line run:'
@@ -171,12 +169,12 @@ define(['jquery', 'base/js/dialog'], function ($, dialog) {
     };
 
     var publishButton = function() {
-        if (!IPython.toolbar) {
-            $([IPython.events]).on("app_initialized.NotebookApp", publishButton);
+        if (!Jupyter.toolbar) {
+            $([Jupyter.events]).on("app_initialized.NotebookApp", publishButton);
             return;
         }
         if ($("#publish_notebook").length === 0) {
-            IPython.toolbar.add_buttons_group([
+            Jupyter.toolbar.add_buttons_group([
                 {
                     'label'   : 'Publish your notebook into Anaconda.org',
                     'icon'    : 'fa-cloud-upload',

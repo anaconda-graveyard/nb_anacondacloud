@@ -17,7 +17,7 @@
 
   root.screenshot = function(message){
     this.captureSelector([
-        "nb_anacondacloud/static/screenshots/",
+        "screenshots/",
          _shotDir,
          "/",
          nextId(),

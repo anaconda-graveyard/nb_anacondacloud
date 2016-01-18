@@ -74,4 +74,3 @@ def load_jupyter_server_extension(nb_app):
         (url_path_join(base_url, r"/ac-login"), WhoAmIHandler)
     ])
     nb_app.log.info("Enabling nb_anacondanotebook")
-    raise Exception("HOORAY Loaded BNAC")

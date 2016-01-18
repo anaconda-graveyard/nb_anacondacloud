@@ -5,11 +5,7 @@ function noauth_test(){
   this.baseline_notebook();
 
   this.runCell(1, [
-    "from binstar_client.utils import dirs, get_binstar",
-    "!jupyter --paths",
-    "!find $HOME",
-    "print(dirs.user_data_dir)",
-    "print(get_binstar().user())"
+    "!anaconda logout"
   ]);
 
   //this.runCell(["!anaconda logout"]);
