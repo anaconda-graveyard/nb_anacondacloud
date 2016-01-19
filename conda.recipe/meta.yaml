@@ -27,13 +27,14 @@ test:
     - anaconda-client
     - coverage
     - flake8
+    - fontconfig              [linux]
+    - freetype
     - funcsigs
     - mock
     - nb_config_manager
     - nbsetuptools
     - nodejs
     - nose
-    - notebook
     - notebook
     - python
     - pyyaml
