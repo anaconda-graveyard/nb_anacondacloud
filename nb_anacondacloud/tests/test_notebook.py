@@ -2,7 +2,6 @@ import os
 import glob
 import json
 import sys
-import shutil
 import subprocess
 
 try:
@@ -12,15 +11,18 @@ except ImportError:
     from mock import patch
 
 from notebook import jstest
-from binstar_client.utils import dirs
 
 here = os.path.dirname(__file__)
+
+TEST_LOG = ".jupyter-jstest.log"
+
 
 # global npm installs are bad, add the local node_modules to the path
 os.environ["PATH"] = os.pathsep.join([
     os.environ["PATH"],
     os.path.abspath(os.path.join(here, "node_modules", ".bin"))
 ])
+
 
 
 class NBAnacondaCloudTestController(jstest.JSController):
@@ -53,21 +55,13 @@ class NBAnacondaCloudTestController(jstest.JSController):
 
     def cleanup(self):
         captured = self.stream_capturer.get_buffer().decode('utf-8', 'replace')
-        with open(".jupyter-jstest.log", "w") as fp:
+        with open(TEST_LOG, "a+") as fp:
+            fp.write("{} results:\n".format(self.section))
             fp.write(captured)
         super(NBAnacondaCloudTestController, self).cleanup()
 
     def _init_server(self):
-        # TODO:
-        # NOT TODO: copy current user token into the temp directory
-        # home = os.environ["HOME"]
-        # _data_dir = "".join([self.home.name, dirs.user_data_dir[len(home):]])
-        #
-        # shutil.copytree(
-        #     dirs.user_data_dir,
-        #     _data_dir
-        # )
-
+        # always install the extension into the test environment
         with patch.dict(os.environ, self.env):
             subprocess.check_call([
                 sys.executable, "-m", "nb_anacondacloud.setup",
@@ -77,6 +71,7 @@ class NBAnacondaCloudTestController(jstest.JSController):
             ])
 
         nbac_ext = "nb_anacondacloud"
+
         if self.section == "auth":
             nbac_ext += ".tests.patched"
 
@@ -167,6 +162,9 @@ def prepare_controllers(options):
 
     instead of notebook js tests
     """
+    if os.path.exists(TEST_LOG):
+        with open(TEST_LOG, "w") as fp:
+            fp.write("Starting test...\n")
     return (
         [
             NBAnacondaCloudTestController('auth'),

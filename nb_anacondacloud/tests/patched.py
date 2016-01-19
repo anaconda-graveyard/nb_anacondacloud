@@ -1,18 +1,18 @@
 import json
 import os
 
+
 try:
-    from unittest.mock import patch
+    from unittest import mock
 except ImportError:
-    # py2
-    from mock import patch
+    import mock
+
+from binstar_client import Binstar
+from binstar_client.mixins.organizations import OrgMixin
 
 import nb_anacondacloud.nbextension as nbac
 
 join = os.path.join
-
-AM = "nb_anacondacloud.nbextension.uploader.AccountManager"
-BCMO = "binstar_client.mixins.organizations.OrgMixin"
 
 FIXTURES = join(os.path.dirname(__file__), "fixtures")
 
@@ -28,13 +28,15 @@ def load_jupyter_server_extension(nb_app):
     nb_app.log.info("Patching nb_anacondacloud")
 
     # Always allow access
-    is_logged_in = patch("{}.is_logged_in".format(AM), autospec=True)
-    is_logged_in.return_value = True
-    is_logged_in.start()
+    mock_user = mock.patch.object(
+        Binstar, 'user',
+        return_value=fixture("user.json"))
+    mock_user.start()
 
     # Always give acme
-    user_orgs = patch("{}.user_orgs".format(BCMO), autospec=True)
-    user_orgs.return_value = fixture("user_orgs.json")
-    user_orgs.start()
+    mock_org = mock.patch.object(
+        OrgMixin, "user_orgs",
+        return_value=fixture("user_orgs.json"))
+    mock_org.start()
 
     nbac.load_jupyter_server_extension(nb_app)
