@@ -36,6 +36,7 @@ test:
     - nodejs
     - nose
     - notebook
+    - phantomjs               [linux]
     - python
     - pyyaml
     - requests
