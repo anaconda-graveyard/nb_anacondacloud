@@ -27,7 +27,6 @@ test:
     - anaconda-client
     - coverage
     - flake8
-    - fontconfig              [linux]
     - freetype
     - funcsigs
     - mock
@@ -36,10 +35,11 @@ test:
     - nodejs
     - nose
     - notebook
-    - phantomjs               [linux]
     - python
     - pyyaml
     - requests
+    - phantomjs [linux]
+    - fontconfig [linux]
 
 source:
   path: ../

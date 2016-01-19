@@ -34,7 +34,8 @@ class NBAnacondaCloudTestController(jstest.JSController):
             *args,
             **kwargs)
 
-        test_cases = glob.glob(os.path.join(here, 'js', 'test_*.js'))
+        test_cases = glob.glob(os.path.join(
+            here, 'js', section, 'test_*.js'))
         js_test_dir = jstest.get_js_test_dir()
 
         includes = [
@@ -75,6 +76,10 @@ class NBAnacondaCloudTestController(jstest.JSController):
                 "--prefix", self.config_dir.name,
             ])
 
+        nbac_ext = "nb_anacondacloud"
+        if self.section == "auth":
+            nbac_ext += ".tests.patched"
+
         # THIS IS FROM jstest
         "Start the notebook server in a separate process"
         self.server_command = command = [
@@ -84,8 +89,7 @@ class NBAnacondaCloudTestController(jstest.JSController):
             '--no-browser',
             '--notebook-dir', self.nbdir.name,
             '--NotebookApp.base_url=%s' % self.base_url,
-            '--NotebookApp.server_extensions=%s' % json.dumps([
-                'nb_anacondacloud.tests.patched'])
+            '--NotebookApp.server_extensions=%s' % json.dumps([nbac_ext])
         ]
         # ipc doesn't work on Windows, and darwin has crazy-long temp paths,
         # which run afoul of ipc's maximum path length.
@@ -163,12 +167,13 @@ def prepare_controllers(options):
 
     instead of notebook js tests
     """
-    if options.testgroups:
-        groups = options.testgroups
-    else:
-        groups = ['']
-    return [NBAnacondaCloudTestController(g, extra_args=options.extra_args)
-            for g in groups], []
+    return (
+        [
+            NBAnacondaCloudTestController('auth'),
+            NBAnacondaCloudTestController('noauth'),
+        ],
+        []
+    )
 
 
 def test_notebook():
