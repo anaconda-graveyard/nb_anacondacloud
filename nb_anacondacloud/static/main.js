@@ -26,7 +26,7 @@ function ($, dialog, Jupyter) {
         }
 
         $.ajax({
-            url: Jupyter.notebook.base_url + "ac-publish/",
+            url: Jupyter.notebook.base_url + "ac-publish",
             method: 'POST',
             dataType: 'json',
             contentType: 'application/json; charset=utf-8',
@@ -103,7 +103,7 @@ function ($, dialog, Jupyter) {
             dropdown;
         Jupyter.notification_area.get_widget("notebook").set_message("Loading", 2000);
         $.ajax({
-            url: Jupyter.notebook.base_url + "ac-login/",
+            url: Jupyter.notebook.base_url + "ac-login",
             method: 'GET',
             dataType: 'json',
             contentType: 'application/json; charset=utf-8',
