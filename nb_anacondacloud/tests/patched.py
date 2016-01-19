@@ -27,16 +27,17 @@ def load_jupyter_server_extension(nb_app):
 
     nb_app.log.info("Patching nb_anacondacloud")
 
-    # Always allow access
-    mock_user = mock.patch.object(
-        Binstar, 'user',
-        return_value=fixture("user.json"))
-    mock_user.start()
+    cls_patches = {
+        Binstar: ["user", "upload", "package", "release"],
+        OrgMixin: ["user_orgs"]
+    }
 
-    # Always give acme
-    mock_org = mock.patch.object(
-        OrgMixin, "user_orgs",
-        return_value=fixture("user_orgs.json"))
-    mock_org.start()
+    for cls, patches in cls_patches.items():
+        for method in patches:
+            mock.patch.object(
+                cls,
+                method,
+                return_value=fixture("{}.json".format(method))
+            ).start()
 
     nbac.load_jupyter_server_extension(nb_app)

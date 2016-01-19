@@ -41,8 +41,10 @@ function ($, dialog, Jupyter) {
             Jupyter.notification_area.get_widget("notebook").
                 set_message("Your notebook has been uploaded.", 4000);
             Jupyter.notebook.metadata.anacondaCloudURL = data.url;
-            Jupyter.notebook.save_notebook();
-            updateVisitLink(data.url);
+            setTimeout(function(){
+              Jupyter.notebook.save_notebook();
+              updateVisitLink(data.url);
+            }, 1000);
         }).fail(function(jqXHR, textStatus) {
             var notif, title, body;
             if (jqXHR.status == 401) {

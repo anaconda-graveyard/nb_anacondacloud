@@ -24,7 +24,6 @@ os.environ["PATH"] = os.pathsep.join([
 ])
 
 
-
 class NBAnacondaCloudTestController(jstest.JSController):
     """ Javascript test subclass that installs widget nbextension in test
         environment
@@ -80,7 +79,7 @@ class NBAnacondaCloudTestController(jstest.JSController):
         self.server_command = command = [
             sys.executable,
             '-m', 'notebook',
-            # '--debug',
+            '--debug',
             '--no-browser',
             '--notebook-dir', self.nbdir.name,
             '--NotebookApp.base_url=%s' % self.base_url,
