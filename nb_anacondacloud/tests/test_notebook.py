@@ -1,5 +1,6 @@
 import os
 import glob
+import json
 import sys
 import shutil
 import subprocess
@@ -58,24 +59,57 @@ class NBAnacondaCloudTestController(jstest.JSController):
     def _init_server(self):
         # TODO:
         # NOT TODO: copy current user token into the temp directory
-        # home = os.environ["HOME"]
-        # _data_dir = "".join([self.home.name, dirs.user_data_dir[len(home):]])
-        #
-        # shutil.copytree(
-        #     dirs.user_data_dir,
-        #     _data_dir
-        # )
+        home = os.environ["HOME"]
+        _data_dir = "".join([self.home.name, dirs.user_data_dir[len(home):]])
+
+        shutil.copytree(
+            dirs.user_data_dir,
+            _data_dir
+        )
 
         with patch.dict(os.environ, self.env):
             subprocess.check_call([
                 sys.executable, "-m", "nb_anacondacloud.setup",
                 "install",
                 "--enable",
-                "--verbose", "DEBUG",
                 "--prefix", self.config_dir.name,
             ])
 
-        super(NBAnacondaCloudTestController, self)._init_server()
+        "Start the notebook server in a separate process"
+        self.server_command = command = [
+            sys.executable,
+            '-m', 'notebook',
+            # '--debug',
+            '--no-browser',
+            '--notebook-dir', self.nbdir.name,
+            '--NotebookApp.base_url=%s' % self.base_url,
+            '--NotebookApp.server_extensions=%s' % json.dumps([
+                'nb_anacondacloud.tests.patched'])
+        ]
+        # ipc doesn't work on Windows, and darwin has crazy-long temp paths,
+        # which run afoul of ipc's maximum path length.
+        if sys.platform.startswith('linux'):
+            command.append('--KernelManager.transport=ipc')
+        self.stream_capturer = c = jstest.StreamCapturer()
+        c.start()
+        env = os.environ.copy()
+        env.update(self.env)
+        if self.engine == 'phantomjs':
+            env['IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS'] = '1'
+        self.server = subprocess.Popen(
+            command,
+            stdout=c.writefd,
+            stderr=subprocess.STDOUT,
+            cwd=self.nbdir.name,
+            env=env,
+        )
+        with patch.dict('os.environ', {'HOME': self.home.name}):
+            runtime_dir = jstest.jupyter_runtime_dir()
+        self.server_info_file = os.path.join(
+            runtime_dir,
+            'nbserver-%i.json' % self.server.pid
+        )
+        self._wait_for_server()
 
 
 def prepare_controllers(options):

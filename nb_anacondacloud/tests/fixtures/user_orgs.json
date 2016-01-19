@@ -1,0 +1,11 @@
+[
+  {
+    "company": "ACME Inc.",
+    "created_at": "2013-10-23 19:24:24.413000+00:00",
+    "location": "United States",
+    "login": "acme",
+    "name": "ACME",
+    "url": "http://acme.io",
+    "user_type": "org"
+  }
+]
