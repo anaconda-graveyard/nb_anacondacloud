@@ -59,13 +59,13 @@ class NBAnacondaCloudTestController(jstest.JSController):
     def _init_server(self):
         # TODO:
         # NOT TODO: copy current user token into the temp directory
-        home = os.environ["HOME"]
-        _data_dir = "".join([self.home.name, dirs.user_data_dir[len(home):]])
-
-        shutil.copytree(
-            dirs.user_data_dir,
-            _data_dir
-        )
+        # home = os.environ["HOME"]
+        # _data_dir = "".join([self.home.name, dirs.user_data_dir[len(home):]])
+        #
+        # shutil.copytree(
+        #     dirs.user_data_dir,
+        #     _data_dir
+        # )
 
         with patch.dict(os.environ, self.env):
             subprocess.check_call([
