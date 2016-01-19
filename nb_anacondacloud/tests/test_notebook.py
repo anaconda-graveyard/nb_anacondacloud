@@ -1,6 +1,7 @@
 import os
 import glob
 import json
+import shutil
 import sys
 import subprocess
 
@@ -11,6 +12,8 @@ except ImportError:
     from mock import patch
 
 from notebook import jstest
+
+from binstar_client.utils import dirs
 
 here = os.path.dirname(__file__)
 
@@ -55,7 +58,9 @@ class NBAnacondaCloudTestController(jstest.JSController):
     def cleanup(self):
         captured = self.stream_capturer.get_buffer().decode('utf-8', 'replace')
         with open(TEST_LOG, "a+") as fp:
-            fp.write("{} results:\n".format(self.section))
+            fp.write("\n{} results:\n{}\n".format(
+                self.section,
+                self.server_command))
             fp.write(captured)
         super(NBAnacondaCloudTestController, self).cleanup()
 
@@ -69,10 +74,25 @@ class NBAnacondaCloudTestController(jstest.JSController):
                 "--prefix", self.config_dir.name,
             ])
 
-        nbac_ext = "nb_anacondacloud"
+        nbac_ext = None
 
+        # Run "Real" local integration testing?
         if self.section == "auth":
-            nbac_ext += ".tests.patched"
+            if os.environ.get("USE_ANACONDA_TOKEN", None):
+                home = os.environ["HOME"]
+                _data_dir = "".join([
+                    self.home.name,
+                    dirs.user_data_dir[len(home):]])
+
+                shutil.copytree(
+                    dirs.user_data_dir,
+                    _data_dir
+                )
+            else:
+                nbac_ext = "nb_anacondacloud.tests.patched"
+
+        if nbac_ext is None:
+            nbac_ext = "nb_anacondacloud.nbextension"
 
         # THIS IS FROM jstest
         "Start the notebook server in a separate process"

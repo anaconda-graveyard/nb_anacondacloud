@@ -4,12 +4,6 @@ function noauth_test(){
 
   this.baseline_notebook();
 
-  this.runCell(1, [
-    "!anaconda logout"
-  ]);
-
-  //this.runCell(["!anaconda logout"]);
-
   this.canSeeAndClick("ua the nbac button", "#publish_notebook")
     .waitForSelectorTextChange("#notification_notebook", function(){
       console.error("selector text changed");

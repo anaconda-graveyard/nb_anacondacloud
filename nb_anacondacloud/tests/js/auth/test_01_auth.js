@@ -6,6 +6,8 @@ function basic_test(){
 
   this.baseline_notebook();
 
+  //this.runCell(0, ["!anaconda whoami"]);
+
   this.canSeeAndClick("the nbac button", "#publish_notebook")
     .then(function(){ return this.wait(300); })
     .canSeeAndClick("the upload header", "h4.modal-title")

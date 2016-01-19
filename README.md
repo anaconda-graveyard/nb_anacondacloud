@@ -14,4 +14,24 @@ python setup.py install --enable --prefix $CONDA_ENV_PATH --symlink
 jupyter notebook --no-browser
 ```
 
- Happy hacking!
+Happy hacking!
+
+## Tests
+The tests can either be run with a mocked API (it won't hit the Anaconda Cloud
+API)...
+
+```
+npm run test
+```
+
+Or using your anaconda credentials, i.e. from `anaconda login`
+
+```
+USE_ANACONDA_TOKEN=1 npm run test
+```
+
+_NOTE_ This approach will test the package "for real" by:
+  - (potentially) deleting a package called `untitled`
+  - publishing a new package `untitled`
+  - releasing a notebook in it
+  - releasing another notebook to it
