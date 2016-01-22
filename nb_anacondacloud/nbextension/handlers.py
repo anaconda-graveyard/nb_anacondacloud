@@ -1,10 +1,14 @@
 import json
 import logging
 
-from binstar_client import errors
 from tornado import web
+from tornado.escape import json_decode
+
 from notebook.utils import url_path_join
 from notebook.base.handlers import APIHandler
+
+from binstar_client import errors
+
 from .uploader import Uploader, AccountManager
 
 log = logging.getLogger(__name__)
@@ -26,7 +30,7 @@ class WhoAmIHandler(APIHandler):
 
     @web.authenticated
     def post(self, **args):
-        json_body = json.loads(self.request.body)
+        json_body = json_decode(self.request.body)
         try:
             self.am.login(json_body['username'], json_body['password'])
         except errors.Unauthorized:
@@ -44,7 +48,7 @@ class WhoAmIHandler(APIHandler):
 class PublishHandler(APIHandler):
     @web.authenticated
     def post(self, **args):
-        json_body = json.loads(self.request.body)
+        json_body = json_decode(self.request.body)
         uploader = Uploader(
             json_body['name'],
             json_body['content'],

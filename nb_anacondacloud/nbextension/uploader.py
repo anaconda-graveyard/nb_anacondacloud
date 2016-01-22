@@ -2,10 +2,7 @@ import json
 import logging
 import platform
 import re
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import BytesIO
 from subprocess import check_output, CalledProcessError
 import time
 import yaml
@@ -66,12 +63,12 @@ class Uploader(object):
         return output
 
     def content_io(self):
-        _notebook = StringIO()
+        _notebook = BytesIO()
 
         if self.env_name is not None:
             self.content = self.attach_env(self.content)
 
-        _notebook.write(json.dumps(self.content))
+        _notebook.write(json.dumps(self.content).encode())
         _notebook.seek(0)
         return _notebook
 
