@@ -1,9 +1,13 @@
 name: nb_anacondacloud
 channels:
   - anaconda-notebook
+  - javascript
 dependencies:
   - anaconda-client
+  - mock
   - nb_config_manager
   - nbsetuptools
+  - nodejs
+  - nose
   - notebook
   - pyyaml

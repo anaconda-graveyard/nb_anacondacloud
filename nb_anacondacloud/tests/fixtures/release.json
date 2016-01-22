@@ -1,0 +1,22 @@
+{
+  "distributions": [
+    {
+      "attrs": {
+      },
+      "basename": "untitled-ipynb",
+      "dependencies": [
+      ],
+      "description": null,
+      "distribution_type": "ipynb",
+      "download_url": "//api.anaconda.org/download/acme-developer/untitled/2016.01.19.1425/untitled-ipynb",
+      "full_name": "acme-developer/untitled/2016.01.19.1425/untitled-ipynb",
+      "md5": "114f2b86a5a0e91d66c25ce2559087bf",
+      "ndownloads": 0,
+      "owner": "acme-developer",
+      "size": 691,
+      "type": "ipynb",
+      "upload_time": "2016-01-19 19:25:38.994000+00:00",
+      "version": "2016.01.19.1425"
+    }
+  ]
+}
