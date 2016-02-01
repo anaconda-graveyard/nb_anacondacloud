@@ -22,7 +22,8 @@
   "devDependencies": {
     "casperjs": "^1.1.0-beta3",
     "eslint": "^1.10.3",
-    "watch": "^0.17.1"
+    "watch": "^0.17.1",
+    "phantomjs": "<2"
   },
   "eslintConfig": {
     "strict": true,
