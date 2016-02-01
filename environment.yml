@@ -2,8 +2,11 @@ name: nb_anacondacloud
 channels:
   - anaconda-nb-extensions
   - javascript
+  - cpcloud
 dependencies:
   - anaconda-client
+  - coverage
+  - flake8
   - mock
   - nb_config_manager
   - nbsetuptools
@@ -11,3 +14,4 @@ dependencies:
   - nose
   - notebook
   - pyyaml
+  - npm # [win]
