@@ -1,1 +1,2 @@
-"%PREFIX%/bin/python" -m nose nb_anacondacloud
+"%PREFIX%\bin\npm" install
+"%PREFIX%\bin\npm" run test
