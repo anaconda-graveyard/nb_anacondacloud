@@ -1,6 +1,6 @@
 name: nb_anacondacloud
 channels:
-  - anaconda-notebook
+  - anaconda-nb-extensions
   - javascript
 dependencies:
   - anaconda-client

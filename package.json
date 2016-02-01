@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "python setup.py nosetests",
-    "pkg:conda": "conda build conda.recipe -c anaconda-notebook -c javascript -c mutirri -c jakirkham -c bokeh",
+    "pkg:conda": "conda build conda.recipe -c anaconda-nb-extensions -c javascript -c mutirri -c jakirkham -c bokeh",
     "lint": "eslint nb_anacondacloud/tests/js nb_anacondacloud/static && flake8 setup.py nb_anacondacloud",
     "watch": "watch 'npm run test' nb_anacondacloud"
   },
