@@ -170,9 +170,10 @@ class AccountManager(object):
     def organizations(self):
         output = []
         for org in self.aserver_api.user_orgs():
-            output.append(
-                {'name': org['name'], 'login': org['login']}
-            )
+            if 'name' in org:
+                output.append({'name': org['name'], 'login': org['login']})
+            else:
+                output.append({'name': org['login'], 'login': org['login']})
         return output
 
 
