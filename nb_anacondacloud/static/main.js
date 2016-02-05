@@ -215,6 +215,10 @@ function ($, dialog, Jupyter) {
                 if (metadata('organization')) {
                     select.val(metadata('organization'));
                 }
+
+                select.on('input', function() {
+                    metadata('organization', select.val());
+                });
             }
 
             summary = $('<input/>', {
