@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="nb_anacondacloud",
-    version='0.1.0',
+    version='0.1.2',
     url="https://github.com/Anaconda-Server/nb_anacondacloud",
     author="Continuum Analytics",
     description="Integration with Anaconda-Cloud",
