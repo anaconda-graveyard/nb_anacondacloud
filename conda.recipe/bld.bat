@@ -1,2 +1,2 @@
-"%PREFIX%/bin/python" setup.py install
+"%PREFIX%\python.exe" setup.py install
 if errorlevel 1 exit 1
