@@ -39,6 +39,7 @@ test:
     - pyyaml
     - requests
     # - phantomjs [linux]
+    - npm [linux32]
     - fontconfig [linux]
 
 source:
