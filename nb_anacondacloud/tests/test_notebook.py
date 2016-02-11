@@ -4,6 +4,12 @@ import json
 import shutil
 import sys
 import subprocess
+import platform
+
+from notebook import jstest
+
+from binstar_client.utils import dirs
+
 
 try:
     from unittest.mock import patch
@@ -11,9 +17,8 @@ except ImportError:
     # py2
     from mock import patch
 
-from notebook import jstest
 
-from binstar_client.utils import dirs
+IS_WIN = "Windows" in platform.system()
 
 here = os.path.dirname(__file__)
 
@@ -54,6 +59,9 @@ class NBAnacondaCloudTestController(jstest.JSController):
 
         if extra_args is not None:
             self.cmd = self.cmd + extra_args
+
+        if IS_WIN:
+            self.cmd[0] = "{}.cmd".format(self.cmd[0])
 
     def cleanup(self):
         captured = self.stream_capturer.get_buffer().decode('utf-8', 'replace')
