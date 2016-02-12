@@ -455,13 +455,18 @@ function ($, dialog, Jupyter) {
         .appendTo(form);
 
         modal = dialog.modal({
-            title: 'Login into Anaconda.org',
             body: body,
             buttons: {
                 'OK': {class: 'btn-primary', click: loginIntoAnaconda},
                 'Close': {}
             }
         });
+
+        modal.find('.modal-title').append(
+            $('<span/>').text('Login into '),
+            $('<a/>', {'href': 'https://anaconda.org', 'target': '_blank'})
+              .append($('<img/>', {'src': LOGO_URL, 'height': 32}))
+        );
     }
 
     function loginIntoAnaconda() {
