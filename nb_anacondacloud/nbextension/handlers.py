@@ -33,6 +33,7 @@ class WhoAmIHandler(APIHandler):
         json_body = json_decode(self.request.body)
         try:
             self.am.login(json_body['username'], json_body['password'])
+            self.finish(json.dumps({'username': json_body['username']}))
         except errors.Unauthorized:
             self.set_status(401)
         except errors.BinstarError as e:
