@@ -355,18 +355,14 @@ function ($, dialog, Jupyter) {
 
 
     function showError(jqXHR, textStatus, label) {
-        var notif, title, body;
+        var notif, title, body, showLoginForm=false;
 
         console.log(arguments)
 
         switch(jqXHR.status){
           case 401:
             title = 'Unauthorized';
-            notif = [
-              $('<p>').text('You are not authorized to complete this action.' +
-                  ' You may need to run this at the command line:'),
-              $('<pre>').text('anaconda login')
-            ];
+            showLoginForm = true;
             break;
           case 500:
             title = label;
@@ -385,17 +381,81 @@ function ($, dialog, Jupyter) {
         Jupyter.notification_area.get_widget('notebook').
             danger(title, 4000);
 
-        body = $('<div>').append(notif);
+        if (showLoginForm) {
+            promptLogin();
+        } else {
+            body = $('<div>').append(notif);
 
-        dialog.modal({
-            title: title,
+            dialog.modal({
+                title: title,
+                body: body,
+                buttons : {
+                    OK: {}
+                }
+            });
+        }
+    }
+
+    function promptLogin() {
+        var body,
+            form,
+            username,
+            password,
+            warning,
+            summary;
+        body = $('<div/>');
+
+        // avoid any surprises with user events firing in the background
+        Jupyter.notebook.keyboard_manager.register_events(body);
+
+        // warning about SSL
+        warning = $('<div/>', {'class': 'alert alert-warning', 'role': 'alert'})
+            .html('If you are not under a secure connection we <b>strongly</b> recommend to ' +
+                  'login through the command line with: <pre>anaconda login</pre>')
+            .appendTo(body);
+
+        // actually build the form
+        form = $('<div/>', {
+            'class': 'form-horizontal',
+            'role': 'form'
+        }).appendTo(body);
+
+        username = $('<input/>', {
+            'class': 'form-control',
+            type: 'text',
+            id: 'anaconda-username',
+            placeholder: 'username'
+        });
+        password = $('<input/>', {
+            'class': 'form-control',
+            type: 'password',
+            id: 'anaconda-password'
+        });
+
+        $('<div/>', {'class': 'form-group'}).append(
+            $('<label/>', {'for': 'anaconda-username'})
+                .text('Username'),
+            $('<div/>').append(username))
+        .appendTo(form);
+
+        $('<div/>', {'class': 'form-group'}).append(
+            $('<label/>', {'for': 'anaconda-password'})
+                .text('Password'),
+            $('<div/>').append(password))
+        .appendTo(form);
+
+        modal = dialog.modal({
+            title: 'Login into Anaconda.org',
             body: body,
-            buttons : {
-                OK: {}
+            buttons: {
+                'OK': {class: 'btn-primary', click: loginIntoAnaconda},
+                'Close': {}
             }
         });
     }
 
+    function loginIntoAnaconda() {
+    }
 
     function updateToolbar() {
         if (!Jupyter.toolbar) {
