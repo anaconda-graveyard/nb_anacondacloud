@@ -409,7 +409,12 @@ function ($, dialog, Jupyter) {
         Jupyter.notebook.keyboard_manager.register_events(body);
         if (withError) {
             $('<div/>', {'class': 'alert alert-danger', 'role': 'alert'})
-                .text('Invalid username or password')
+                .html(
+                    'Invalid username or password.<br>' +
+                    'Did you forget your ' +
+                    '<a href="https://anaconda.org/account/forgot_username" target="_blank">username</a> or ' +
+                    '<a href="https://anaconda.org/account/forgot_password" target="_blank">password</a>?'
+                )
                 .appendTo(body);
         }
 
