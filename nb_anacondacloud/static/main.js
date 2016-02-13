@@ -470,7 +470,7 @@ function ($, dialog, Jupyter) {
         });
 
         modal.find('.modal-title').append(
-            $('<span/>').text('Login into '),
+            $('<span/>').text('Sign in to '),
             $('<a/>', {'href': 'https://anaconda.org', 'target': '_blank'})
               .append($('<img/>', {'src': LOGO_URL, 'height': 32}))
         );
