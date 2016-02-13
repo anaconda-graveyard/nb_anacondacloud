@@ -454,6 +454,13 @@ function ($, dialog, Jupyter) {
             $('<div/>').append(password))
         .appendTo(form);
 
+        $('<div/>', {'class': 'form-group'}).append(
+            $('<label/>').html(
+                'If you don\'t have an account you sign up in ' +
+                '<a href="https://anaconda.org/" target="_blank">Anaconda.org</a>.'
+            )
+        ).appendTo(form);
+
         modal = dialog.modal({
             body: body,
             buttons: {
