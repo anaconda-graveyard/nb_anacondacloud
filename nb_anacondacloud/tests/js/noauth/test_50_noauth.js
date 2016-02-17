@@ -13,7 +13,7 @@ function noauth_test(){
     .canSeeAndClick("the modal", ".modal")
     .canSeeAndClick("the unauthorized message", "h4.modal-title")
     .then(function(){
-      t.assertSelectorHasText(" h4.modal-title", "Unauthorized");
+      t.assertSelectorHasText(" h4.modal-title", "Sign in to");
     })
     .canSeeAndClick("the dismiss button",
       ".modal .btn[data-dismiss=modal]");
