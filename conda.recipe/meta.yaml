@@ -38,7 +38,8 @@ test:
     - python
     - pyyaml
     - requests
-    - phantomjs [linux]
+    - npm # [linux32]
+    - npm # [win]
     - fontconfig [linux]
 
 source:

@@ -20,7 +20,7 @@ function noauth_test(){
 }
 
 casper.notebook_test(function(){
-  casper.screenshot.init("50_noauth");
+  casper.screenshot.init("noauth");
   casper.viewport(1440, 900)
     .then(noauth_test)
 });
