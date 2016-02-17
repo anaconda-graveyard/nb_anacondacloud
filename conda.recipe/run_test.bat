@@ -1,1 +1,2 @@
-"%PREFIX%/bin/python" -m nose nb_anacondacloud
+"%PREFIX%\Scripts\npm.cmd" install && "%PREFIX%\Scripts\npm.cmd" run test
+if errorlevel 1 exit 1

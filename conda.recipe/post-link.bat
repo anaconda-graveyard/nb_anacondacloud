@@ -1,1 +1,1 @@
-"%PREFIX%/bin/python" -m nb_anacondacloud.setup install --enable --prefix="%PREFIX%"
+"%PREFIX%\python.exe" -m nb_anacondacloud.setup install --enable --prefix="%PREFIX%"
