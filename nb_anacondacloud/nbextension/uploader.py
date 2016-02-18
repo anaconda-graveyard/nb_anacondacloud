@@ -7,7 +7,7 @@ from subprocess import check_output, CalledProcessError
 import time
 import yaml
 from binstar_client import errors
-from binstar_client.utils import get_binstar, store_token
+from binstar_client.utils import get_server_api, store_token
 from binstar_client.utils.notebook.inflection import parameterize
 
 log = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ class Uploader(object):
     _project = None
 
     def __init__(self, name, content):
-        self.aserver_api = get_binstar()
+        self.aserver_api = get_server_api()
         self.name = parameterize(name)
         self.content = content
         self.summary = self.metadata.get("summary", "Jupyter Notebook")
@@ -140,7 +140,7 @@ class Uploader(object):
 class AccountManager(object):
     def __init__(self):
         self._user = None
-        self.aserver_api = get_binstar()
+        self.aserver_api = get_server_api()
 
     def is_logged_in(self):
         return self.user is not None
