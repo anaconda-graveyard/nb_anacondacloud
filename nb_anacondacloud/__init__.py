@@ -27,6 +27,3 @@ def load_jupyter_server_extension(nb_app):
         (url_path_join(base_url, ns, r"login"), WhoAmIHandler)
     ])
     nb_app.log.info("Enabling nb_anacondcloud")
-
-
-raise 1
