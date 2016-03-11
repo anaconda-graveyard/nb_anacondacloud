@@ -12,7 +12,7 @@ def _jupyter_nbextension_paths():
         dict(
             section="notebook",
             src=os.path.join("static"),
-            dest="nb_anacondacloud/",
+            dest="nb_anacondacloud",
             require="nb_anacondacloud/main")
     ]
 
