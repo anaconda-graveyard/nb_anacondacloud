@@ -1,15 +1,9 @@
-import os
 import glob
 import json
+import os
 import shutil
-import sys
 import subprocess
-import platform
-
-from notebook import jstest
-
-from binstar_client.utils import dirs
-
+import sys
 
 try:
     from unittest.mock import patch
@@ -17,13 +11,17 @@ except ImportError:
     # py2
     from mock import patch
 
+import requests
+
+from notebook import jstest
+from ipython_genutils.tempdir import TemporaryDirectory
+from binstar_client.utils import dirs
+
+import platform
 
 IS_WIN = "Windows" in platform.system()
 
 here = os.path.dirname(__file__)
-
-TEST_LOG = ".jupyter-jstest.log"
-
 
 # global npm installs are bad, add the local node_modules to the path
 os.environ["PATH"] = os.pathsep.join([
@@ -38,10 +36,8 @@ class NBAnacondaCloudTestController(jstest.JSController):
     """
     def __init__(self, section, *args, **kwargs):
         extra_args = kwargs.pop('extra_args', None)
-        super(NBAnacondaCloudTestController, self).__init__(
-            section,
-            *args,
-            **kwargs)
+        super(NBAnacondaCloudTestController,
+              self).__init__(section, *args, **kwargs)
 
         test_cases = glob.glob(os.path.join(
             here, 'js', section, 'test_*.js'))
@@ -63,20 +59,49 @@ class NBAnacondaCloudTestController(jstest.JSController):
         if IS_WIN:
             self.cmd[0] = "{}.cmd".format(self.cmd[0])
 
+    def launch(self, buffer_output=False, capture_output=False):
+        # print('*** ENV:', self.env)  # dbg
+        # print('*** CMD:', self.cmd)  # dbg
+        env = os.environ.copy()
+        env.update(self.env)
+        if buffer_output:
+            capture_output = True
+        self.stdout_capturer = c = jstest.StreamCapturer(
+            echo=not buffer_output)
+        c.start()
+        stdout = c.writefd if capture_output else None
+        # stderr = subprocess.STDOUT if capture_output else None
+        self.process = subprocess.Popen(
+            self.cmd,
+            stderr=subprocess.PIPE,
+            stdout=stdout,
+            env=env)
+
+    def wait(self):
+        self.process.communicate()
+        self.stdout_capturer.halt()
+        self.stdout = self.stdout_capturer.get_buffer()
+        return self.process.returncode
+
     def _init_server(self):
-        # always install the extension into the test environment
+        nbac_ext = None
+
+        conda = ("CONDA_ENV_PATH" in os.environ or
+                 "DEFAULT_ENV_PATH" in os.environ)
+
         with patch.dict(os.environ, self.env):
-            [
-                subprocess.check_call(["jupyter"] + cmd + [
-                                       "--sys-prefix",
-                                       "--py", "nb_anacondacloud"])
+            install_results = [
+                subprocess.Popen(["jupyter"] + cmd + [
+                                       "--sys-prefix" if conda else "--user",
+                                       "--py", "nb_anacondacloud"
+                                 ]).communicate()
                 for cmd in [
                     ["serverextension", "enable"],
                     ["nbextension", "install"],
                     ["nbextension", "enable"]
                 ]]
-
-        nbac_ext = None
+            if any(sum(install_results, tuple())):
+                raise Exception(install_results)
 
         # Run "Real" local integration testing?
         if self.section == "auth":
@@ -131,62 +156,6 @@ class NBAnacondaCloudTestController(jstest.JSController):
             'nbserver-%i.json' % self.server.pid
         )
         self._wait_for_server()
-
-    def setup(self):
-        # the fancy dir names confuse anaconda build
-        self.ipydir = jstest.TemporaryDirectory()
-        self.config_dir = jstest.TemporaryDirectory()
-        self.nbdir = jstest.TemporaryDirectory()
-        self.home = jstest.TemporaryDirectory()
-        self.env = {
-            'HOME': self.home.name,
-            'JUPYTER_CONFIG_DIR': self.config_dir.name,
-            'IPYTHONDIR': self.ipydir.name,
-        }
-        self.dirs.append(self.ipydir)
-        self.dirs.append(self.home)
-        self.dirs.append(self.config_dir)
-        self.dirs.append(self.nbdir)
-        os.makedirs(os.path.join(
-            self.nbdir.name, os.path.join(u'sub dir1', u'sub dir 1a')))
-        os.makedirs(os.path.join(
-            self.nbdir.name, os.path.join(u'sub dir2', u'sub dir 1b')))
-
-        if self.xunit:
-            self.add_xunit()
-
-        # If a url was specified, use that for the testing.
-        if self.url:
-            try:
-                alive = jstest.requests.get(self.url).status_code == 200
-            except:
-                alive = False
-
-            if alive:
-                self.cmd.append("--url=%s" % self.url)
-            else:
-                raise Exception('Could not reach "%s".' % self.url)
-        else:
-            # start the ipython notebook, so we get the port number
-            self.server_port = 0
-            self._init_server()
-            if self.server_port:
-                self.cmd.append('--url=http://localhost:%i%s' % (
-                    self.server_port, self.base_url))
-            else:
-                # don't launch tests if the server didn't start
-                self.cmd = [sys.executable, '-c', 'raise SystemExit(1)']
-
-    def cleanup(self):
-        if not hasattr(self, "stream_capturer"):
-            return
-        captured = self.stream_capturer.get_buffer().decode('utf-8', 'replace')
-        with open(TEST_LOG, "a+") as fp:
-            fp.write("\n{} results:\n{}\n".format(
-                self.section,
-                self.server_command))
-            fp.write(captured)
-        super(NBAnacondaCloudTestController, self).cleanup()
 
 
 def prepare_controllers(options):
