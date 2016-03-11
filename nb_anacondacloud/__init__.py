@@ -1,6 +1,5 @@
-import os
 from notebook.utils import url_path_join
-from .nbextension.handlers import PublishHandler, WhoAmIHandler
+from .handlers import PublishHandler, WhoAmIHandler
 
 
 def _jupyter_server_extension_paths():
@@ -11,8 +10,8 @@ def _jupyter_nbextension_paths():
     return [
         dict(
             section="notebook",
-            src=os.path.join("static"),
-            dest="nb_anacondacloud/",
+            src="static",
+            dest="nb_anacondacloud",
             require="nb_anacondacloud/main")
     ]
 
