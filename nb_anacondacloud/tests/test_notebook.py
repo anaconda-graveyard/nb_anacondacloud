@@ -63,24 +63,18 @@ class NBAnacondaCloudTestController(jstest.JSController):
         if IS_WIN:
             self.cmd[0] = "{}.cmd".format(self.cmd[0])
 
-    def cleanup(self):
-        captured = self.stream_capturer.get_buffer().decode('utf-8', 'replace')
-        with open(TEST_LOG, "a+") as fp:
-            fp.write("\n{} results:\n{}\n".format(
-                self.section,
-                self.server_command))
-            fp.write(captured)
-        super(NBAnacondaCloudTestController, self).cleanup()
-
     def _init_server(self):
         # always install the extension into the test environment
         with patch.dict(os.environ, self.env):
-            subprocess.check_call([
-                sys.executable, "-m", "nb_anacondacloud.setup",
-                "install",
-                "--enable",
-                "--prefix", self.config_dir.name,
-            ])
+            [
+                subprocess.check_call(["jupyter"] + cmd + [
+                                       "--sys-prefix",
+                                       "--py", "nb_anacondacloud"])
+                for cmd in [
+                    ["serverextension", "enable"],
+                    ["nbextension", "install"],
+                    ["nbextension", "enable"]
+                ]]
 
         nbac_ext = None
 
