@@ -103,9 +103,11 @@ class NBAnacondaCloudTestController(jstest.JSController):
             if any(sum(install_results, tuple())):
                 raise Exception(install_results)
 
+        nbac_ext = "nb_anacondacloud"
+
         # Run "Real" local integration testing?
         if self.section == "auth":
-            if os.environ.get("USE_ANACONDA_TOKEN", None):
+            if os.environ.get("USE_ANACONDA_TOKEN", False):
                 home = os.environ["HOME"]
                 _data_dir = "".join([
                     self.home.name,
@@ -118,9 +120,6 @@ class NBAnacondaCloudTestController(jstest.JSController):
             else:
                 nbac_ext = "nb_anacondacloud.tests.patched"
 
-        if nbac_ext is None:
-            nbac_ext = "nb_anacondacloud.nbextension"
-
         # THIS IS FROM jstest
         "Start the notebook server in a separate process"
         self.server_command = command = [
@@ -132,6 +131,7 @@ class NBAnacondaCloudTestController(jstest.JSController):
             '--NotebookApp.base_url=%s' % self.base_url,
             '--NotebookApp.server_extensions=%s' % json.dumps([nbac_ext])
         ]
+
         # ipc doesn't work on Windows, and darwin has crazy-long temp paths,
         # which run afoul of ipc's maximum path length.
         if sys.platform.startswith('linux'):
@@ -165,8 +165,8 @@ def prepare_controllers(options):
     """
     return (
         [
-            NBAnacondaCloudTestController('auth'),
             NBAnacondaCloudTestController('noauth'),
+            NBAnacondaCloudTestController('auth'),
         ],
         []
     )
