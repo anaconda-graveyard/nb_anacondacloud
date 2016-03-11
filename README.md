@@ -10,8 +10,8 @@ source activate nb_anacondacloud
 # We will remove this 4.2 is released
 conda install notebook=5 -c malev -c javascript
 python setup.py develop
-jupyter nbextension install --py=nb_anacondacloud --overwrite --sys-prefix --symlink
-jupyter nbextension enable --py=nb_anacondacloud --sys-prefix
+jupyter nbextension install --py nb_anacondacloud --overwrite --sys-prefix
+jupyter nbextension enable --py nb_anacondacloud --sys-prefix
 jupyter serverextension enable --py=nb_anacondacloud --sys-prefix
 
 jupyter notebook --no-browser
