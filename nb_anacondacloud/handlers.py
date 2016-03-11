@@ -36,7 +36,7 @@ class WhoAmIHandler(APIHandler):
     @property
     def am(self):
         if self._am is None:
-            self._am = AccountManager(logger=self.log)
+            self._am = AccountManager()
         return self._am
 
 
@@ -47,7 +47,7 @@ class PublishHandler(APIHandler):
         nb = json_body['content']
         name = json_body['name']
         self.log.info("Uploading {}".format(name))
-        uploader = Uploader(name, nb, logger=self.log)
+        uploader = Uploader(name, nb)
         try:
             self.finish(json.dumps(uploader.upload()))
             self.log.info("upload {} OK".format(name))

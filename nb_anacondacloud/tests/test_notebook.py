@@ -177,15 +177,23 @@ class NBAnacondaCloudTestController(jstest.JSController):
                 # don't launch tests if the server didn't start
                 self.cmd = [sys.executable, '-c', 'raise SystemExit(1)']
 
+    def cleanup(self):
+        if not hasattr(self, "stream_capturer"):
+            return
+        captured = self.stream_capturer.get_buffer().decode('utf-8', 'replace')
+        with open(TEST_LOG, "a+") as fp:
+            fp.write("\n{} results:\n{}\n".format(
+                self.section,
+                self.server_command))
+            fp.write(captured)
+        super(NBAnacondaCloudTestController, self).cleanup()
+
 
 def prepare_controllers(options):
     """Monkeypatched prepare_controllers for running widget js tests
 
     instead of notebook js tests
     """
-    if os.path.exists(TEST_LOG):
-        with open(TEST_LOG, "w") as fp:
-            fp.write("Starting test...\n")
     return (
         [
             NBAnacondaCloudTestController('auth'),
