@@ -4,7 +4,6 @@ import logging
 from tornado import web
 from tornado.escape import json_decode
 
-from notebook.utils import url_path_join
 from notebook.base.handlers import APIHandler
 
 from binstar_client import errors
@@ -59,15 +58,3 @@ class PublishHandler(APIHandler):
         except errors.BinstarError as e:
             self.log.error(e)
             self.set_status(400, str(e))
-
-
-def load_jupyter_server_extension(nb_app):
-    """Load the nb_anacondacloud client extension"""
-    webapp = nb_app.web_app
-    base_url = webapp.settings['base_url']
-    ns = r'anaconda-cloud'
-    webapp.add_handlers(".*$", [
-        (url_path_join(base_url, ns, r"publish"), PublishHandler),
-        (url_path_join(base_url, ns, r"login"), WhoAmIHandler)
-    ])
-    nb_app.log.info("Enabling nb_anacondcloud")

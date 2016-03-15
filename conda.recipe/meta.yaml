@@ -9,14 +9,11 @@ build:
 requirements:
   build:
     - anaconda-client
-    - nbsetuptools
     - python
     - setuptools
   run:
     - anaconda-client
-    - nb_config_manager
-    - nbsetuptools
-    - notebook
+    - notebook ==5.0.0
     - pyyaml
     - python
 
@@ -30,8 +27,6 @@ test:
     - freetype
     - funcsigs
     - mock
-    - nb_config_manager
-    - nbsetuptools
     - nodejs
     - nose
     - notebook

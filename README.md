@@ -7,9 +7,12 @@ git clone
 conda env create
 source activate nb_anacondacloud
 
+# We will remove this 4.2 is released
+conda install notebook=5 -c malev -c javascript
 python setup.py develop
-cd nb_anacondacloud
-python setup.py install --enable --prefix $CONDA_ENV_PATH --symlink
+jupyter nbextension install --py nb_anacondacloud --overwrite --sys-prefix
+jupyter nbextension enable --py nb_anacondacloud --sys-prefix
+jupyter serverextension enable --py=nb_anacondacloud --sys-prefix
 
 jupyter notebook --no-browser
 ```
