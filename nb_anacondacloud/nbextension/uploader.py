@@ -146,13 +146,13 @@ class AccountManager(object):
         return self.user is not None
 
     def login(self, username, password):
-        token = self.get_token(username, password)
         fake_args = FakeArgs(username, password)
+        token = self.get_token(fake_args)
         store_token(token, fake_args)
 
-    def get_token(self):
+    def get_token(self, args):
         return self.aserver_api.authenticate(
-            self.username, self.password, 'https://api.anaconda.org',
+            args.login_username, args.login_password, 'https://api.anaconda.org',
             created_with='nb_anacondacloud', fail_if_already_exists=True,
             hostname=platform.node()
         )
