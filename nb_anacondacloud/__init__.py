@@ -1,6 +1,6 @@
 import os
 from notebook.utils import url_path_join
-from .nbextension.handlers import PublishHandler, WhoAmIHandler
+from .handlers import PublishHandler, WhoAmIHandler
 
 
 def _jupyter_server_extension_paths():

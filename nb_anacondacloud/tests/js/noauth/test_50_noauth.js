@@ -6,7 +6,6 @@ function noauth_test(){
 
   this.canSeeAndClick("ua the nbac button", "#publish_notebook")
     .waitForSelectorTextChange("#notification_notebook", function(){
-      console.error("selector text changed");
       return this;
     })
     .canSeeAndClick("the notification area", "#notification_notebook")

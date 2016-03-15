@@ -10,7 +10,7 @@ except ImportError:
 from binstar_client import Binstar
 from binstar_client.mixins.organizations import OrgMixin
 
-import nb_anacondacloud.nbextension as nbac
+import nb_anacondacloud as nbac
 
 join = os.path.join
 
