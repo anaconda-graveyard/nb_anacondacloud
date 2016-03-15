@@ -4,6 +4,6 @@ from nbsetuptools import setup
 
 setup(
     name="nb_anacondacloud",
-    version="0.1.1",
+    version="0.2.0",
     static=join(abspath(dirname(__file__)), 'static')
 )
