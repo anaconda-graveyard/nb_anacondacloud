@@ -68,10 +68,10 @@ class NBAnacondaCloudTestController(jstest.JSController):
         """
         super(NBAnacondaCloudTestController, self).add_xunit()
 
-        prefix = ["--sys-prefix"]
-        pkg = ["--py", "nb_anacondacloud"]
-
         with patch.dict(os.environ, self.env.copy()):
+            prefix = (["--sys-prefix"] if ("CONDA_ENV_PATH" in os.environ) or
+                      ("CONDA_DEFAULT_ENV" in os.environ) else ["--user"])
+            pkg = ["--py", "nb_anacondacloud"]
             install_results = [
                 subprocess.Popen(["jupyter"] + cmd + prefix + pkg,
                                  env=os.environ
