@@ -1,1 +1,2 @@
-"${PREFIX}/bin/python" -m nb_anacondacloud.setup install --enable --prefix "${PREFIX}"
+"${PREFIX}/bin/jupyter" nbextension enable --sys-prefix --py nb_anacondacloud
+"${PREFIX}/bin/jupyter" serverextension enable --sys-prefix --py nb_anacondacloud

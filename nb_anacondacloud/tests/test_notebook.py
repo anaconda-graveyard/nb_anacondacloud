@@ -1,15 +1,7 @@
-import os
 import glob
-import json
+import os
 import shutil
-import sys
 import subprocess
-import platform
-
-from notebook import jstest
-
-from binstar_client.utils import dirs
-
 
 try:
     from unittest.mock import patch
@@ -18,12 +10,18 @@ except ImportError:
     from mock import patch
 
 
+from notebook import jstest
+from binstar_client.utils import dirs
+
+import platform
+
 IS_WIN = "Windows" in platform.system()
 
 here = os.path.dirname(__file__)
 
+# TODO: Needed because of the number of different streams... needs better
+# interleaving
 TEST_LOG = ".jupyter-jstest.log"
-
 
 # global npm installs are bad, add the local node_modules to the path
 os.environ["PATH"] = os.pathsep.join([
@@ -38,10 +36,9 @@ class NBAnacondaCloudTestController(jstest.JSController):
     """
     def __init__(self, section, *args, **kwargs):
         extra_args = kwargs.pop('extra_args', None)
-        super(NBAnacondaCloudTestController, self).__init__(
-            section,
-            *args,
-            **kwargs)
+        super(NBAnacondaCloudTestController,
+              self).__init__(section, *args, **kwargs)
+        self.xunit = True
 
         test_cases = glob.glob(os.path.join(
             here, 'js', section, 'test_*.js'))
@@ -63,125 +60,106 @@ class NBAnacondaCloudTestController(jstest.JSController):
         if IS_WIN:
             self.cmd[0] = "{}.cmd".format(self.cmd[0])
 
-    def cleanup(self):
-        captured = self.stream_capturer.get_buffer().decode('utf-8', 'replace')
-        with open(TEST_LOG, "a+") as fp:
-            fp.write("\n{} results:\n{}\n".format(
-                self.section,
-                self.server_command))
-            fp.write(captured)
-        super(NBAnacondaCloudTestController, self).cleanup()
+    def use_token(self):
+        return os.environ.get("USE_ANACONDA_TOKEN", None)
 
-    def _init_server(self):
-        # always install the extension into the test environment
-        with patch.dict(os.environ, self.env):
-            subprocess.check_call([
-                sys.executable, "-m", "nb_anacondacloud.setup",
-                "install",
-                "--enable",
-                "--prefix", self.config_dir.name,
-            ])
+    def add_xunit(self):
+        """ Hack the setup in the middle (after paths, before server)
+        """
+        super(NBAnacondaCloudTestController, self).add_xunit()
 
-        nbac_ext = None
+        prefix = ["--sys-prefix"]
+        pkg = ["--py", "nb_anacondacloud"]
 
-        # Run "Real" local integration testing?
-        if self.section == "auth":
-            if os.environ.get("USE_ANACONDA_TOKEN", None):
+        with patch.dict(os.environ, self.env.copy()):
+            install_results = [
+                subprocess.Popen(["jupyter"] + cmd + prefix + pkg,
+                                 env=os.environ
+                                 ).communicate()
+                for cmd in [
+                    ["serverextension", "enable"],
+                    ["nbextension", "install"],
+                    ["nbextension", "enable"]
+                ]]
+
+            if any(sum(install_results, tuple())):
+                raise Exception(install_results)
+
+            if (self.section == "auth") and self.use_token():
                 home = os.environ["HOME"]
                 _data_dir = "".join([
                     self.home.name,
                     dirs.user_data_dir[len(home):]])
 
+                with open(TEST_LOG, "a+") as fp:
+                    fp.write("\nCopying auth token to {}\n".format(
+                        _data_dir
+                    ))
+
                 shutil.copytree(
                     dirs.user_data_dir,
                     _data_dir
                 )
-            else:
-                nbac_ext = "nb_anacondacloud.tests.patched"
 
-        if nbac_ext is None:
-            nbac_ext = "nb_anacondacloud.nbextension"
+            # we patch the auth by changing the configuration... probably
+            # a cleaner way to do it...
+            patch_auth = False
+            if (self.section == "auth") and not self.use_token():
+                patch_auth = True
+            nbac = "disable" if patch_auth else "enable"
+            nbac_p = "enable" if patch_auth else "disable"
 
-        # THIS IS FROM jstest
-        "Start the notebook server in a separate process"
-        self.server_command = command = [
-            sys.executable,
-            '-m', 'notebook',
-            '--debug',
-            '--no-browser',
-            '--notebook-dir', self.nbdir.name,
-            '--NotebookApp.base_url=%s' % self.base_url,
-            '--NotebookApp.server_extensions=%s' % json.dumps([nbac_ext])
-        ]
-        # ipc doesn't work on Windows, and darwin has crazy-long temp paths,
-        # which run afoul of ipc's maximum path length.
-        if sys.platform.startswith('linux'):
-            command.append('--KernelManager.transport=ipc')
-        self.stream_capturer = c = jstest.StreamCapturer()
-        c.start()
+            with open(TEST_LOG, "a+") as fp:
+                fp.write("\n\n\n-------------\n{} nbac:{} nbac_p:{}".format(
+                    self.section,
+                    nbac, nbac_p
+                ))
+
+            toggles = [
+                [nbac, "nb_anacondacloud"],
+                [nbac_p, "nb_anacondacloud.tests.patched"]]
+
+            for toggle, ext in toggles:
+                subprocess.Popen(
+                    ["jupyter", "serverextension", toggle] + prefix + [ext]
+                ).communicate()
+
+            for ext_type in ["nbextension", "serverextension"]:
+                subprocess.Popen(["jupyter", ext_type, "list"]).communicate()
+
+    def launch(self, buffer_output=False, capture_output=False):
         env = os.environ.copy()
         env.update(self.env)
-        if self.engine == 'phantomjs':
-            env['IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS'] = '1'
-        self.server = subprocess.Popen(
-            command,
-            stdout=c.writefd,
-            stderr=subprocess.STDOUT,
-            cwd=self.nbdir.name,
-            env=env,
-        )
-        with patch.dict('os.environ', {'HOME': self.home.name}):
-            runtime_dir = jstest.jupyter_runtime_dir()
-        self.server_info_file = os.path.join(
-            runtime_dir,
-            'nbserver-%i.json' % self.server.pid
-        )
-        self._wait_for_server()
+        if buffer_output:
+            capture_output = True
+        self.stdout_capturer = c = jstest.StreamCapturer(
+            echo=not buffer_output)
+        c.start()
+        stdout = c.writefd if capture_output else None
+        # stderr = subprocess.STDOUT if capture_output else None
+        self.process = subprocess.Popen(
+            self.cmd,
+            stderr=subprocess.PIPE,
+            stdout=stdout,
+            env=env)
 
-    def setup(self):
-        # the fancy dir names confuse anaconda build
-        self.ipydir = jstest.TemporaryDirectory()
-        self.config_dir = jstest.TemporaryDirectory()
-        self.nbdir = jstest.TemporaryDirectory()
-        self.home = jstest.TemporaryDirectory()
-        self.env = {
-            'HOME': self.home.name,
-            'JUPYTER_CONFIG_DIR': self.config_dir.name,
-            'IPYTHONDIR': self.ipydir.name,
-        }
-        self.dirs.append(self.ipydir)
-        self.dirs.append(self.home)
-        self.dirs.append(self.config_dir)
-        self.dirs.append(self.nbdir)
-        os.makedirs(os.path.join(
-            self.nbdir.name, os.path.join(u'sub dir1', u'sub dir 1a')))
-        os.makedirs(os.path.join(
-            self.nbdir.name, os.path.join(u'sub dir2', u'sub dir 1b')))
+    def wait(self):
+        self.process.communicate()
+        self.stdout_capturer.halt()
+        self.stdout = self.stdout_capturer.get_buffer()
+        return self.process.returncode
 
-        if self.xunit:
-            self.add_xunit()
+    def cleanup(self):
+        if hasattr(self, "stream_capturer"):
+            captured = self.stream_capturer.get_buffer().decode(
+                'utf-8', 'replace')
+            with open(TEST_LOG, "a+") as fp:
+                fp.write("-----------------------\n{} results:\n{}\n".format(
+                    self.section,
+                    self.server_command))
+                fp.write(captured)
 
-        # If a url was specified, use that for the testing.
-        if self.url:
-            try:
-                alive = jstest.requests.get(self.url).status_code == 200
-            except:
-                alive = False
-
-            if alive:
-                self.cmd.append("--url=%s" % self.url)
-            else:
-                raise Exception('Could not reach "%s".' % self.url)
-        else:
-            # start the ipython notebook, so we get the port number
-            self.server_port = 0
-            self._init_server()
-            if self.server_port:
-                self.cmd.append('--url=http://localhost:%i%s' % (
-                    self.server_port, self.base_url))
-            else:
-                # don't launch tests if the server didn't start
-                self.cmd = [sys.executable, '-c', 'raise SystemExit(1)']
+        super(NBAnacondaCloudTestController, self).cleanup()
 
 
 def prepare_controllers(options):
@@ -189,9 +167,6 @@ def prepare_controllers(options):
 
     instead of notebook js tests
     """
-    if os.path.exists(TEST_LOG):
-        with open(TEST_LOG, "w") as fp:
-            fp.write("Starting test...\n")
     return (
         [
             NBAnacondaCloudTestController('auth'),

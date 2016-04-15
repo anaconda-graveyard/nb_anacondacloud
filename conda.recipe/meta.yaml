@@ -2,20 +2,21 @@ package:
   name: nb_anacondacloud
   version: 0.2.0
 
+source:
+  git_url: ../
+
 build:
   number: {{ environ.get('GIT_DESCRIBE_NUMBER', 0) }}
-  string: py{% if environ.get('GIT_DESCRIBE_NUMBER', '0') == '0' %}{{ environ.get('PY_VER').replace('.', '') }}_0{% else %}{{ environ.get('PY_VER').replace('.', '') }}_{{ environ.get('GIT_BUILD_STR', 'GIT_STUB') }}{% endif %}
+  {% if environ.get('GIT_DESCRIBE_NUMBER', '0') == '0' %}string: py{{ environ.get('PY_VER').replace('.', '') }}_0
+  {% else %}string: py{{ environ.get('PY_VER').replace('.', '') }}_{{ environ.get('GIT_BUILD_STR', 'GIT_STUB') }}{% endif %}
 
 requirements:
   build:
     - anaconda-client
-    - nbsetuptools
     - python
     - setuptools
   run:
     - anaconda-client
-    - nb_config_manager
-    - nbsetuptools
     - notebook
     - pyyaml
     - python
@@ -30,8 +31,6 @@ test:
     - freetype
     - funcsigs
     - mock
-    - nb_config_manager
-    - nbsetuptools
     - nodejs
     - nose
     - notebook
@@ -41,9 +40,6 @@ test:
     - npm # [linux32]
     - npm # [win]
     - fontconfig [linux]
-
-source:
-  path: ../
 
 about:
   home: https://github.com/Anaconda-Server/nb_anacondacloud
