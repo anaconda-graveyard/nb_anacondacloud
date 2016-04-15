@@ -6,7 +6,7 @@ function basic_test(){
 
   this.baseline_notebook();
 
-  this.canSeeAndClick("the nbac toolbar button", "#publish_notebook")
+  return this.canSeeAndClick("the nbac toolbar button", "#publish_notebook")
     .then(function(){ return this.wait(300); })
     .canSeeAndClick("the upload header", "h4.modal-title")
     .then(function(){
@@ -15,7 +15,8 @@ function basic_test(){
     .canSeeAndClick("the publish button", ".modal-body .btn-success")
     .canSeeAndClick("the visit toolbar button", "#visit_notebook")
     .then(function(){ return this.wait(3000); })
-    .canSeeAndClick("fin", "#publish_notebook");
+    .canSeeAndClick("fin", "#publish_notebook")
+    .then(function(){ return this.wait(3000); });
 }
 
 
