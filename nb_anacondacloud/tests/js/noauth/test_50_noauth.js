@@ -5,10 +5,6 @@ function noauth_test(){
   this.baseline_notebook();
 
   this.canSeeAndClick("ua the nbac button", "#publish_notebook")
-    .waitForSelectorTextChange("#notification_notebook", function(){
-      console.error("selector text changed");
-      return this;
-    })
     .canSeeAndClick("the notification area", "#notification_notebook")
     .canSeeAndClick("the modal", ".modal")
     .canSeeAndClick("the unauthorized message", "h4.modal-title")
