@@ -3,6 +3,10 @@ import os
 import shutil
 import subprocess
 
+import sys
+raise Exception(sys.platform)
+
+
 try:
     from unittest.mock import patch
 except ImportError:
@@ -232,6 +236,4 @@ def test_notebook():
 
 
 if __name__ == '__main__':
-    import sys
-    raise Exception(sys.platform)
     test_notebook()
