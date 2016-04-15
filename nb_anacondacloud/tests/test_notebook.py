@@ -63,6 +63,30 @@ class NBAnacondaCloudTestController(jstest.JSController):
     def use_token(self):
         return os.environ.get("USE_ANACONDA_TOKEN", None)
 
+    def launch(self, buffer_output=False, capture_output=False):
+        # print('*** ENV:', self.env)  # dbg
+        # print('*** CMD:', self.cmd)  # dbg
+        env = os.environ.copy()
+        env.update(self.env)
+        if buffer_output:
+            capture_output = True
+        self.stdout_capturer = c = jstest.StreamCapturer(
+            echo=not buffer_output)
+        c.start()
+        stdout = c.writefd if capture_output else None
+        # stderr = subprocess.STDOUT if capture_output else None
+        self.process = subprocess.Popen(
+            self.cmd,
+            stderr=subprocess.PIPE,
+            stdout=stdout,
+            env=env)
+
+    def wait(self):
+        self.process.communicate()
+        self.stdout_capturer.halt()
+        self.stdout = self.stdout_capturer.get_buffer()
+        return self.process.returncode
+
     # copy pasta from...
     # https://github.com/jupyter/notebook/blob/master/notebook/jstest.py#L234
     def setup(self):
@@ -121,6 +145,7 @@ class NBAnacondaCloudTestController(jstest.JSController):
             pkg = ["--py", "nb_anacondacloud"]
             install_results = [
                 subprocess.Popen(["jupyter"] + cmd + prefix + pkg,
+                                 stdout=subprocess.PIPE,
                                  env=os.environ
                                  ).communicate()
                 for cmd in [
@@ -168,33 +193,10 @@ class NBAnacondaCloudTestController(jstest.JSController):
 
             for toggle, ext in toggles:
                 subprocess.Popen(
-                    ["jupyter", "serverextension", toggle] + prefix + [ext]
+                    ["jupyter", "serverextension", toggle] + prefix + [ext],
+                    stdout=subprocess.PIPE,
+                    env=os.environ
                 ).communicate()
-
-            for ext_type in ["nbextension", "serverextension"]:
-                subprocess.Popen(["jupyter", ext_type, "list"]).communicate()
-
-    def launch(self, buffer_output=False, capture_output=False):
-        env = os.environ.copy()
-        env.update(self.env)
-        if buffer_output:
-            capture_output = True
-        self.stdout_capturer = c = jstest.StreamCapturer(
-            echo=not buffer_output)
-        c.start()
-        stdout = c.writefd if capture_output else None
-        # stderr = subprocess.STDOUT if capture_output else None
-        self.process = subprocess.Popen(
-            self.cmd,
-            stderr=subprocess.PIPE,
-            stdout=stdout,
-            env=env)
-
-    def wait(self):
-        self.process.communicate()
-        self.stdout_capturer.halt()
-        self.stdout = self.stdout_capturer.get_buffer()
-        return self.process.returncode
 
     def cleanup(self):
         if hasattr(self, "stream_capturer"):
