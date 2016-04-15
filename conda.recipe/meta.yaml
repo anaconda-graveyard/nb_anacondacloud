@@ -15,9 +15,10 @@ requirements:
     - anaconda-client
     - python
     - setuptools
+    - notebook ==4.2.0b1
   run:
     - anaconda-client
-    - notebook
+    - notebook ==4.2.0b1
     - pyyaml
     - python
 
@@ -33,7 +34,7 @@ test:
     - mock
     - nodejs
     - nose
-    - notebook
+    - notebook ==4.2.0b1
     - python
     - pyyaml
     - requests
