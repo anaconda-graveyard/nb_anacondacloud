@@ -232,4 +232,6 @@ def test_notebook():
 
 
 if __name__ == '__main__':
+    import sys
+    print(sys.platform.startswith)
     test_notebook()
