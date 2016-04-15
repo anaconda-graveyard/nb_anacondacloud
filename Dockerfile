@@ -1,5 +1,6 @@
 FROM continuumio/miniconda
 RUN conda install -yn root conda-build==1.20.0
+
 COPY environment.yml /opt/nb_anacondcloud/
 
 WORKDIR /opt/nb_anacondcloud
