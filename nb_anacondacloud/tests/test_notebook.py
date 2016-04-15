@@ -3,10 +3,6 @@ import os
 import shutil
 import subprocess
 
-import sys
-raise Exception(sys.platform)
-
-
 try:
     from unittest.mock import patch
 except ImportError:
