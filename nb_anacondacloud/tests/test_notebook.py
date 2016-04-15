@@ -207,6 +207,7 @@ class NBAnacondaCloudTestController(jstest.JSController):
                     self.section,
                     self.server_command))
                 fp.write(captured)
+                print("JUPYTER JSTESTLOG", captured)
 
         super(NBAnacondaCloudTestController, self).cleanup()
 

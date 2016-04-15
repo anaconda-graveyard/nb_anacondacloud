@@ -1,6 +1,7 @@
 name: nb_anacondacloud
 channels:
   - javascript
+  - anaconda-nb-extensions/label/dev
 dependencies:
   - anaconda-client
   - coverage
