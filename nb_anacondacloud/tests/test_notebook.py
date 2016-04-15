@@ -82,7 +82,7 @@ class NBAnacondaCloudTestController(jstest.JSController):
             env=env)
 
     def wait(self):
-        self.process.communicate()
+        print(self.process.communicate())
         self.stdout_capturer.halt()
         self.stdout = self.stdout_capturer.get_buffer()
         return self.process.returncode
