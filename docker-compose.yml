@@ -1,2 +1,4 @@
 builder:
   build: .
+  ports:
+    - 9999:8888
