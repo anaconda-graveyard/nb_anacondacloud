@@ -35,13 +35,13 @@ test:
     - nodejs
     - nose
     - notebook >=4.2.0
+    - phantomjs
     - python
     - pyyaml
     - requests
     - npm # [linux32]
-    - npm # [win]
+    - npm # [win32]
     - fontconfig # [linux]
-    - phantomjs
 
 about:
   home: https://github.com/Anaconda-Server/nb_anacondacloud
