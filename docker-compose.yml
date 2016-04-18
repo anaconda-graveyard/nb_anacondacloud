@@ -1,4 +1,5 @@
 builder:
   build: .
+  command: jupyter notebook --no-browser --debug --ip *
   ports:
     - 9999:8888
