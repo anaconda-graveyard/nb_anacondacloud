@@ -12,8 +12,8 @@ except ImportError:
 
 from notebook import (
     jstest,
-    serverextension,
-    nbextension
+    nbextensions,
+    serverextensions,
 )
 
 from binstar_client.utils import dirs
@@ -182,13 +182,13 @@ class NBAnacondaCloudTestController(jstest.JSController):
             sys_prefix = "CONDA_ENV_PATH" in os.environ
             pkg = "nb_anacondacloud"
 
-            nbextension.install_nbextension_python(
+            nbextensions.install_nbextension_python(
                 pkg,
                 sys_prefix=sys_prefix)
-            nbextension.enable_nbextension_python(
+            nbextensions.enable_nbextension_python(
                 pkg,
                 sys_prefix=sys_prefix)
-            serverextension.toggle_serverextension_python(
+            serverextensions.toggle_serverextension_python(
                 pkg,
                 sys_prefix=sys_prefix)
 
@@ -210,12 +210,12 @@ class NBAnacondaCloudTestController(jstest.JSController):
 
             patch_auth = (self.section == "auth") and not self.use_token()
 
-            serverextension.toggle_serverextension_python(
+            serverextensions.toggle_serverextension_python(
                 import_name="nb_anacondacloud.tests.patched",
                 enabled=patch_auth,
                 sys_prefix=sys_prefix)
 
-            serverextension.toggle_serverextension_python(
+            serverextensions.toggle_serverextension_python(
                 import_name=pkg,
                 enabled=not patch_auth,
                 sys_prefix=sys_prefix)
