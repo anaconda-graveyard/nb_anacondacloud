@@ -11,4 +11,3 @@ dependencies:
   - nose
   - notebook
   - pyyaml
-  - phantomjs

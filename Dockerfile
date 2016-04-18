@@ -1,8 +1,11 @@
 FROM continuumio/miniconda
 ENV LC_ALL=C
-RUN conda install -yn root conda-build==1.20.0
 
-COPY environment.yml /opt/nb_anacondcloud/
+RUN apt-get update --fix-missing \
+  && apt-get install -y libfreetype6 \
+  && apt-get clean
+
+RUN conda install -yn root conda-build==1.20.0
 
 WORKDIR /opt/nb_anacondcloud
 RUN conda env update
