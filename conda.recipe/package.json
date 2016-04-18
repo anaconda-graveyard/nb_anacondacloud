@@ -1,7 +1,7 @@
 {
   "name": "nb_anacondacloud-conda-test",
   "version": "1.0.0",
-  "description": "",
+  "description": "Test utilities for nb_anacondacloud",
   "main": "index.js",
   "scripts": {
     "test": "python -m nose nb_anacondacloud"

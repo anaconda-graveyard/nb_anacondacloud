@@ -1,7 +1,7 @@
 {
   "name": "nb_anacondacloud",
-  "version": "0.2.0",
-  "description": "## Development",
+  "version": "1.0.0",
+  "description": "Development tools for nb_anacondacloud",
   "main": "index.js",
   "scripts": {
     "test": "python setup.py nosetests",
