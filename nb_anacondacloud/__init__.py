@@ -1,5 +1,5 @@
 # flake8: noqa
-from .version import *
+from ._version import *
 from .handlers import load_jupyter_server_extension
 
 
