@@ -10,7 +10,12 @@ except ImportError:
     from mock import patch
 
 
-from notebook import jstest
+from notebook import (
+    jstest,
+    serverextension,
+    nbextension
+)
+
 from binstar_client.utils import dirs
 
 import platform
@@ -174,22 +179,18 @@ class NBAnacondaCloudTestController(jstest.JSController):
         super(NBAnacondaCloudTestController, self).add_xunit()
 
         with patch.dict(os.environ, self.env.copy()):
-            prefix = (["--sys-prefix"] if ("CONDA_ENV_PATH" in os.environ) or
-                      ("CONDA_DEFAULT_ENV" in os.environ) else ["--user"])
-            pkg = ["--py", "nb_anacondacloud"]
-            install_results = [
-                subprocess.Popen(["jupyter"] + cmd + prefix + pkg,
-                                 stdout=subprocess.PIPE,
-                                 env=os.environ
-                                 ).communicate()
-                for cmd in [
-                    ["serverextension", "enable"],
-                    ["nbextension", "install"],
-                    ["nbextension", "enable"]
-                ]]
+            sys_prefix = "CONDA_ENV_PATH" in os.environ
+            pkg = "nb_anacondacloud"
 
-            if any(sum(install_results, tuple())):
-                raise Exception(install_results)
+            nbextension.install_nbextension_python(
+                pkg,
+                sys_prefix=sys_prefix)
+            nbextension.enable_nbextension_python(
+                pkg,
+                sys_prefix=sys_prefix)
+            serverextension.toggle_serverextension_python(
+                pkg,
+                sys_prefix=sys_prefix)
 
             if (self.section == "auth") and self.use_token():
                 home = os.environ["HOME"]
@@ -207,30 +208,17 @@ class NBAnacondaCloudTestController(jstest.JSController):
                     _data_dir
                 )
 
-            # we patch the auth by changing the configuration... probably
-            # a cleaner way to do it...
-            patch_auth = False
-            if (self.section == "auth") and not self.use_token():
-                patch_auth = True
-            nbac = "disable" if patch_auth else "enable"
-            nbac_p = "enable" if patch_auth else "disable"
+            patch_auth = (self.section == "auth") and not self.use_token()
 
-            with open(TEST_LOG, "a+") as fp:
-                fp.write("\n\n\n-------------\n{} nbac:{} nbac_p:{}".format(
-                    self.section,
-                    nbac, nbac_p
-                ))
+            serverextension.toggle_serverextension_python(
+                import_name="nb_anacondacloud.tests.patched",
+                enabled=patch_auth,
+                sys_prefix=sys_prefix)
 
-            toggles = [
-                [nbac, "nb_anacondacloud"],
-                [nbac_p, "nb_anacondacloud.tests.patched"]]
-
-            for toggle, ext in toggles:
-                subprocess.Popen(
-                    ["jupyter", "serverextension", toggle] + prefix + [ext],
-                    stdout=subprocess.PIPE,
-                    env=os.environ
-                ).communicate()
+            serverextension.toggle_serverextension_python(
+                import_name=pkg,
+                enabled=not patch_auth,
+                sys_prefix=sys_prefix)
 
     def cleanup(self):
         if hasattr(self, "stream_capturer"):
