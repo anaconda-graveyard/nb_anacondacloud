@@ -32,7 +32,6 @@ test:
     - flake8
     - freetype
     - funcsigs
-    - mock
     - nodejs
     - nose
     - notebook >=4.2.0
@@ -42,6 +41,7 @@ test:
     - npm # [linux32]
     - npm # [win32]
     - fontconfig # [linux]
+    - mock # [py2k]
 
 about:
   home: https://github.com/Anaconda-Platform/nb_anacondacloud
