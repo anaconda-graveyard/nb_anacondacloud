@@ -25,6 +25,7 @@ requirements:
 test:
   files:
     - package.json
+    - setup.cfg
   requires:
     - anaconda-client
     - coverage
