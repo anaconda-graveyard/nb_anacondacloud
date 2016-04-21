@@ -54,13 +54,13 @@ class Uploader(object):
 
     def attach_env(self, content):
         content['metadata']['environment'] = yaml.load(
-            self._exec('conda env export -n {}'.format(self.env_name))
+            self._exec(['conda', 'env', 'export', '-n', self.env_name])
         )
         return content
 
     def _exec(self, cmd):
         try:
-            output = check_output(cmd.split())
+            output = check_output(cmd)
         except CalledProcessError as e:
             log.error(e)
             output = {}
