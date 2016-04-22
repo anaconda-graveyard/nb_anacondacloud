@@ -1,2 +1,2 @@
-#!/bin/bash
-"${PREFIX}/bin/python" setup.py install
+"${PYTHON}" setup.py install
+"${PREFIX}/bin/jupyter-nbextension" install nb_anacondacloud --py --sys-prefix --overwrite

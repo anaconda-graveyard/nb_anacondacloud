@@ -32,8 +32,18 @@ function ($, dialog, Jupyter) {
 
 
     function publishNotebook(){
+        var kernel_name = Jupyter.notebook.kernel.name,
+          env_name = kernel_name,
+          match = /\[(.+)\]$/.exec(kernel_name);
+
+        if(match) {
+            env_name = match[1];
+        } else {
+            // old-style kernel names from nb_conda_kernels
+            env_name = kernel_name;
+        }
         metadata('environment', metadata('attach-environment') ?
-            Jupyter.notebook.kernel.name :
+            env_name :
             null);
         Jupyter.notebook.save_notebook().then(uploadNotebook);
     }

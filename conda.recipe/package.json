@@ -1,7 +1,7 @@
 {
   "name": "nb_anacondacloud-conda-test",
   "version": "1.0.0",
-  "description": "",
+  "description": "Test utilities for nb_anacondacloud",
   "main": "index.js",
   "scripts": {
     "test": "python -m nose nb_anacondacloud"
@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "casperjs": "^1.1.0-beta3",
+    "casperjs": "1.1.0-beta5",
     "phantomjs": "<2"
   }
 }

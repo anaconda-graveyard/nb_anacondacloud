@@ -1,1 +1,1 @@
-"%PREFIX%\python.exe" -m nb_anacondacloud.setup remove --prefix="%PREFIX%"
+"%PREFIX%\Scripts\jupyter-nbextension" disable nb_anacondacloud --py --sys-prefix && "%PREFIX%\Scripts\jupyter-serverextension" disable nb_anacondacloud --py --sys-prefix && if errorlevel 1 exit 1
