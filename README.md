@@ -53,3 +53,10 @@ _NOTE_ This approach will test the package "for real" by:
   - publishing a new package `untitled`
   - releasing a notebook in it
   - releasing another notebook to it
+
+
+## Changelog
+
+### 1.0.0
+- update to notebook 4.2
+- handle environment uploads better with nb_conda_kernels
