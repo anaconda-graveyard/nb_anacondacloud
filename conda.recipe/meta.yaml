@@ -38,8 +38,6 @@ test:
     - python
     - pyyaml
     - requests
-    - npm # [linux32]
-    - npm # [win32]
     - fontconfig # [linux]
     - mock # [py2k]
 
