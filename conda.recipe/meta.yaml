@@ -13,7 +13,7 @@ build:
 requirements:
   build:
     - anaconda-client
-    - python
+    - python 2.7*|3.4*|3.5*
     - setuptools
     - notebook >=4.2.0
   run:
@@ -35,7 +35,7 @@ test:
     - nodejs
     - nose
     - notebook >=4.2.0
-    - python
+    - python 2.7*|3.4*|3.5*
     - pyyaml
     - requests
     - fontconfig # [linux]
