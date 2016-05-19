@@ -13,14 +13,14 @@ build:
 requirements:
   build:
     - anaconda-client
+    - notebook >=4.2.0
     - python 2.7*|3.4*|3.5*
     - setuptools
-    - notebook >=4.2.0
   run:
     - anaconda-client
     - notebook >=4.2.0
+    - python 2.7*|3.4*|3.5*
     - pyyaml
-    - python
 
 test:
   files:
