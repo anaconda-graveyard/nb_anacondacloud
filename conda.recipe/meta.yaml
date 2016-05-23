@@ -13,14 +13,14 @@ build:
 requirements:
   build:
     - anaconda-client
-    - python
-    - setuptools
     - notebook >=4.2.0
+    - python 2.7*|3.4*|3.5*
+    - setuptools
   run:
     - anaconda-client
     - notebook >=4.2.0
+    - python 2.7*|3.4*|3.5*
     - pyyaml
-    - python
 
 test:
   files:
@@ -35,11 +35,9 @@ test:
     - nodejs
     - nose
     - notebook >=4.2.0
-    - python
+    - python 2.7*|3.4*|3.5*
     - pyyaml
     - requests
-    - npm # [linux32]
-    - npm # [win32]
     - fontconfig # [linux]
     - mock # [py2k]
 

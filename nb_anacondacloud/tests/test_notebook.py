@@ -179,7 +179,7 @@ class NBAnacondaCloudTestController(jstest.JSController):
         super(NBAnacondaCloudTestController, self).add_xunit()
 
         with patch.dict(os.environ, self.env.copy()):
-            sys_prefix = "CONDA_ENV_PATH" in os.environ
+            sys_prefix = True
             pkg = "nb_anacondacloud"
 
             nbextensions.install_nbextension_python(
