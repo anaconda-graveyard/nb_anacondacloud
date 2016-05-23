@@ -3,13 +3,15 @@
 ## Development
 
 ```shell
-git clone
-conda env create
+git clone https://github.com/Anaconda-Platform/nb_anacondacloud.git
+cd nb_anacondacloud
+conda env update
 source activate nb_anacondacloud
 
 python setup.py develop
-cd nb_anacondacloud
-python setup.py install --enable --prefix $CONDA_ENV_PATH --symlink
+jupyter nbextension install nb_anacondacloud --py --sys-prefix --symlink
+jupyter nbextension enable nb_anacondacloud --py --sys-prefix
+jupyter serverextension enable nb_anacondacloud --py --sys-prefix
 
 jupyter notebook --no-browser
 ```
@@ -20,17 +22,10 @@ Happy hacking!
 
 ### ...the easy way
 ```shell
-npm run pkg:conda
+conda build conda.recipe
 ```
 
 ### ...the hard way
-Update `npm` and install `casperjs` and other test assets:
-
-```shell
-npm install -g npm
-npm install
-```
-
 The tests can either be run with a mocked API (it won't hit the Anaconda Cloud
 API)...
 
@@ -56,6 +51,9 @@ _NOTE_ This approach will test the package "for real" by:
 
 
 ## Changelog
+
+### 1.0.1
+- minor install fixes
 
 ### 1.0.0
 - update to notebook 4.2
