@@ -98,10 +98,17 @@ class Uploader(object):
 
     @property
     def notebook_attrs(self):
-        if 'thumbnail' in self.metadata:
-            return {'thumbnail': self.metadata["thumbnail"]}
-        else:
-            return {}
+        attrs = {}
+
+        # thumbnails should be coming back with a proper data URI starting with
+        # "data:image/png;base64,"... but the uploader/template will add its
+        # own later. Just strip it, or fail if it's not properly formatted
+        try:
+            attrs['thumbnail'] = self.metadata["thumbnail"].split(",")[1]
+        except Exception:
+            log.warning("No thumbnail found")
+
+        return attrs
 
     @property
     def package(self):
@@ -152,7 +159,9 @@ class AccountManager(object):
 
     def get_token(self, args):
         return self.aserver_api.authenticate(
-            args.login_username, args.login_password, 'https://api.anaconda.org',
+            args.login_username,
+            args.login_password,
+            'https://api.anaconda.org',
             created_with='nb_anacondacloud', fail_if_already_exists=True,
             hostname=platform.node()
         )

@@ -1,6 +1,7 @@
 name: nb_anacondacloud
 channels:
   - conda-forge
+  - defaults
 dependencies:
   - anaconda-client
   - coverage

@@ -148,16 +148,18 @@ class NBAnacondaCloudTestController(jstest.JSController):
             '--notebook-dir', self.nbdir.name,
             '--NotebookApp.base_url=%s' % self.base_url,
         ]
+
         # ipc doesn't work on Windows, and darwin has crazy-long temp paths,
         # which run afoul of ipc's maximum path length.
         # if jstest.sys.platform.startswith('linux'):
         #     command.append('--KernelManager.transport=ipc')
+
         self.stream_capturer = c = jstest.StreamCapturer()
         c.start()
         env = os.environ.copy()
         env.update(self.env)
-        if self.engine == 'phantomjs':
-            env['IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS'] = '1'
+        # if self.engine == 'phantomjs':
+        #     env['IPYTHON_ALLOW_DRAFT_WEBSOCKETS_FOR_PHANTOMJS'] = '1'
         self.server = subprocess.Popen(
             command,
             stdout=c.writefd,
