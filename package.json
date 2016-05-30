@@ -20,8 +20,8 @@
   "homepage": "https://github.com/Anaconda-Platform/nb_anacondacloud",
   "devDependencies": {
     "casperjs": "^1.1.1",
+    "eslint": "^2.11.0",
     "phantomjs-prebuilt": "^2.1.7",
-    "eslint": "^1.10.3",
     "watch": "^0.17.1"
   },
   "eslintConfig": {
