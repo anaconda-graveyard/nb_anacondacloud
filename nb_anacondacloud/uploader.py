@@ -106,7 +106,7 @@ class Uploader(object):
         try:
             attrs['thumbnail'] = self.metadata["thumbnail"].split(",")[1]
         except Exception:
-            log.warning("No thumbnail found")
+            pass
 
         return attrs
 
