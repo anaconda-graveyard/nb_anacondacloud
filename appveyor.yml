@@ -54,6 +54,7 @@ install:
     - cmd: conda env update
     - cmd: activate nb_anacondacloud
     - cmd: npm install
+    - cmd: rmdir /s /q "%PREFIX%\share\jupyter\kernels"
 
 # Skip .NET project specific build phase.
 build: off
