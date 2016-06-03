@@ -54,13 +54,13 @@ install:
     - cmd: conda env update
     - cmd: activate nb_anacondacloud
     - cmd: npm install
-    - cmd: rmdir /s /q "%PREFIX%\share\jupyter\kernels"
 
 # Skip .NET project specific build phase.
 build: off
 
 test_script:
     - cmd: python setup.py develop
+    - cmd: jupyter kernelspec list
     - cmd: jupyter nbextension install nb_anacondacloud --py --sys-prefix
     - cmd: jupyter nbextension enable nb_anacondacloud --py --sys-prefix
     - cmd: jupyter serverextension enable nb_anacondacloud --py --sys-prefix
