@@ -60,7 +60,7 @@ build: off
 
 test_script:
     - cmd: python setup.py develop
-    - cmd: jupyter kernelspec list
+    - cmd: rmdir /q /s "%CONDA_DEFAULT_ENV%\share\jupyter\kernels" 2>nul
     - cmd: jupyter nbextension install nb_anacondacloud --py --sys-prefix
     - cmd: jupyter nbextension enable nb_anacondacloud --py --sys-prefix
     - cmd: jupyter serverextension enable nb_anacondacloud --py --sys-prefix
