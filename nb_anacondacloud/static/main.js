@@ -32,16 +32,22 @@ function ($, dialog, Jupyter) {
 
 
     function publishNotebook(){
-        var kernel_name = Jupyter.notebook.kernel.name,
-          env_name = kernel_name,
-          match = /\[(.+)\]$/.exec(kernel_name);
+      /*
+        Select the current environment for the running kernel.
+        This is dependent on behavior of 'nb_conda_kernels' 2.0.0:
+        - <normal name, like ir, python3, etc>  # server env
+        - conda-env-<env name>-<lang key, py or ir>
+        - conda-root-<lang key>
+        */
+        var kernel_name = IPython.notebook.kernel.name,
+            kernel_env_re = /^conda-(env-)?(.+?)(-[^\-]*)?$/,
+            match = kernel_env_re.exec(kernel_name),
+            env_name;
 
         if(match) {
-            env_name = match[1];
-        } else {
-            // old-style kernel names from nb_conda_kernels
-            env_name = kernel_name;
+            env_name = m[2];
         }
+
         metadata('environment', metadata('attach-environment') ?
             env_name :
             null);

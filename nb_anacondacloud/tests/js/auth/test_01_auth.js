@@ -1,9 +1,18 @@
-var t = casper.test;
-
 var system = require('system');
 
-function basic_test(){
+var t = casper.test,
+  kernel_prefix = 'python',
+  kernel_suffix = '';
 
+
+casper.notebook_test_kernel(kernel_prefix, kernel_suffix, function(){
+  casper.screenshot.init("auth_create");
+  casper.viewport(1440, 900)
+    .then(basic_test)
+});
+
+
+function basic_test(){
   this.baseline_notebook();
 
   return this.canSeeAndClick("the nbac toolbar button", "#publish_notebook")
@@ -18,10 +27,3 @@ function basic_test(){
     .canSeeAndClick("fin", "#publish_notebook")
     .then(function(){ return this.wait(3000); });
 }
-
-
-casper.notebook_test(function(){
-  casper.screenshot.init("auth_create");
-  casper.viewport(1440, 900)
-    .then(basic_test)
-});
