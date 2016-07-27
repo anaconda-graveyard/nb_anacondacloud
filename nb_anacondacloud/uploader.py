@@ -110,8 +110,8 @@ class Uploader(object):
         # getting lots of extra pip deps... this might not always be needed
         if pip_deps:
             unique_pip_deps = []
-            conda_deps = [dep.split("=")[0].replace("_", "-")
-                          for dep in dependencies]
+            conda_deps = [cdep.split("=")[0].replace("_", "-")
+                          for cdep in dependencies]
             for dep in pip_deps:
                 # local files are not reproducible
                 if "(" in dep:
