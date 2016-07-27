@@ -48,10 +48,9 @@ install:
     - cmd: conda config --set always_yes yes --set changeps1 no
     - cmd: conda update --yes --quiet conda
     - cmd: set PYTHONUNBUFFERED=1
-    - cmd: conda config --add channels conda-forge
     - cmd: conda info
     - cmd: conda create -n nb_anacondacloud "%PY_CONDITION%"
-    - cmd: conda env update
+    - cmd: conda install -y --quiet -n nb_anacondacloud -c conda-forge --file requirements.txt
     - cmd: activate nb_anacondacloud
     - cmd: npm install
 
