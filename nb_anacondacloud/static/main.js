@@ -39,7 +39,7 @@ function ($, dialog, Jupyter) {
         - conda-env-<env name>-<lang key, py or ir>
         - conda-root-<lang key>
         */
-        var kernel_name = IPython.notebook.kernel.name,
+        var kernel_name = Jupyter.notebook.kernel.name,
             kernel_env_re = /^conda-(env-)?(.+?)(-[^\-]*)?$/,
             match = kernel_env_re.exec(kernel_name),
             env_name;
