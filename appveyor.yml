@@ -11,6 +11,15 @@ environment:
   matrix:
     # Note: Because we have to separate the py2 and py3 components due to compiler version, we have a race condition for non-python packages.
     # Not sure how to resolve this, but maybe we should be tracking the VS version in the build string anyway?
+    - TARGET_ARCH: "x86"
+      CONDA_PY: "27"
+      PY_CONDITION: "python >=2.7,<3"
+    - TARGET_ARCH: "x86"
+      CONDA_PY: "34"
+      PY_CONDITION: "python >=3.4,<3.5"
+    - TARGET_ARCH: "x86"
+      CONDA_PY: "35"
+      PY_CONDITION: "python >=3.5"
     - TARGET_ARCH: "x64"
       CONDA_PY: "27"
       PY_CONDITION: "python >=2.7,<3"
@@ -48,10 +57,9 @@ install:
     - cmd: conda config --set always_yes yes --set changeps1 no
     - cmd: conda update --yes --quiet conda
     - cmd: set PYTHONUNBUFFERED=1
-    - cmd: conda config --add channels conda-forge
     - cmd: conda info
     - cmd: conda create -n nb_anacondacloud "%PY_CONDITION%"
-    - cmd: conda env update
+    - cmd: conda install -y --quiet -n nb_anacondacloud -c conda-forge --file requirements.txt
     - cmd: activate nb_anacondacloud
     - cmd: npm install
 
@@ -60,7 +68,6 @@ build: off
 
 test_script:
     - cmd: python setup.py develop
-    - cmd: rmdir /q /s "%CONDA_DEFAULT_ENV%\share\jupyter\kernels" 2>nul
     - cmd: jupyter nbextension install nb_anacondacloud --py --sys-prefix
     - cmd: jupyter nbextension enable nb_anacondacloud --py --sys-prefix
     - cmd: jupyter serverextension enable nb_anacondacloud --py --sys-prefix

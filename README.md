@@ -20,11 +20,11 @@ time you publish!
 ## Development
 ```shell
 git clone https://github.com/Anaconda-Platform/nb_anacondacloud.git
-cd nb_anacondacloud
-conda env update
+conda create -y -n nb_anacondacloud python
+conda install -y -n nb_anacondacloud -c conda-forge --file requirements.txt
 source activate nb_anacondacloud
-
 python setup.py develop
+npm install
 jupyter nbextension install nb_anacondacloud --py --sys-prefix --symlink
 jupyter nbextension enable nb_anacondacloud --py --sys-prefix
 jupyter serverextension enable nb_anacondacloud --py --sys-prefix
@@ -62,6 +62,10 @@ Automated tests are run on Travis-CI and Appveyor.
 
 
 ## Changelog
+
+
+### 1.2.0
+- update to `nb_conda_kernels` 2.0.0 (and actually depend on it)
 
 ### 1.1.0
 - fix thumbnail uploading

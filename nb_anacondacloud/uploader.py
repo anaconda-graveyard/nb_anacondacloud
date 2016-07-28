@@ -5,7 +5,10 @@ import re
 from io import BytesIO
 from subprocess import check_output, CalledProcessError
 import time
+import os
+
 import yaml
+
 from binstar_client import errors
 from binstar_client.utils import get_server_api, store_token
 from binstar_client.utils.notebook.inflection import parameterize
@@ -24,7 +27,13 @@ class Uploader(object):
         self.content = content
         self.summary = self.metadata.get("summary", "Jupyter Notebook")
         self.username = self.metadata.get("organization", None)
-        self.env_name = self.metadata.get("environment", None)
+        if self.metadata.get("attach-environment", None):
+            self.env_name = self.metadata.get("environment", None)
+            if self.env_name is None:
+                self.env_name = self.default_env()
+        else:
+            self.env_name = None
+
         if self.username is None:
             self.username = self.aserver_api.user()['login']
 
@@ -52,10 +61,78 @@ class Uploader(object):
                     self.project, self.version)
                 raise errors.BinstarError(msg)
 
+    def default_env(self):
+        conda_info = self._exec(['conda', 'info', '--json'])
+
+        if not conda_info:
+            return None
+
+        conda_info = json.loads(conda_info.decode("utf-8"))
+
+        if conda_info["default_prefix"] == conda_info["root_prefix"]:
+            return "root"
+
+        return os.path.basename(conda_info["default_prefix"])
+
     def attach_env(self, content):
-        content['metadata']['environment'] = yaml.load(
-            self._exec(['conda', 'env', 'export', '-n', self.env_name])
+        """ given an environment name, update the content with a normalized
+            `conda env import`-compatible environment
+        """
+        env = yaml.load(
+            self._exec(['conda', 'env', 'export',
+                        '-n', self.env_name,
+                        '--no-builds'])
         )
+        # this is almost certainly not useful to anybody else
+        env.pop('prefix')
+
+        # this is currently a mess
+        channels = env.get("channels", [])
+        dependencies = []
+        pip_deps = []
+
+        # currently seeing weird stuff
+        for dep in env.get("dependencies", []):
+            if isinstance(dep, dict):
+                if "pip" in dep:
+                    pip_deps = dep["pip"]
+            else:
+                channel = None
+                if "::" in dep:
+                    channel, dep = dep.split("::")
+                if channel is not None:
+                    channels.append(channel)
+                dependencies.append(dep)
+
+        # i guess no dependencies could happen
+        env["dependencies"] = sorted(set(dependencies or []))
+
+        # getting lots of extra pip deps... this might not always be needed
+        if pip_deps:
+            unique_pip_deps = []
+            conda_deps = [cdep.split("=")[0].replace("_", "-")
+                          for cdep in dependencies]
+            for dep in pip_deps:
+                # local files are not reproducible
+                if "(" in dep:
+                    continue
+                pip_dep = dep.split("=")[0]
+                if pip_dep.replace("_", "-") not in conda_deps:
+                    unique_pip_deps.append(pip_dep)
+            if unique_pip_deps:
+                env["dependencies"].append({"pip": sorted(unique_pip_deps)})
+
+        # only add channels if you got some
+        if channels:
+            env["channels"] = channels
+
+        # avoid foot-shooting here
+        if env.get("name") == "root":
+            env["name"] = "notebook-{}".format(self.name)
+
+        # whew, we made it! it would be great to have a verify step
+        content['metadata']['environment'] = env
+
         return content
 
     def _exec(self, cmd):

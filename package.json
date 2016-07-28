@@ -1,10 +1,10 @@
 {
   "name": "nb_anacondacloud",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Development tools for nb_anacondacloud",
   "main": "index.js",
   "scripts": {
-    "test": "python -m nose nb_anacondacloud.tests",
+    "test": "npm run lint && python -m nose nb_anacondacloud.tests",
     "lint": "eslint nb_anacondacloud/tests/js nb_anacondacloud/static && flake8 setup.py nb_anacondacloud",
     "watch": "watch 'npm run test' nb_anacondacloud"
   },
