@@ -45,7 +45,7 @@ function ($, dialog, Jupyter) {
             env_name;
 
         if(match) {
-            env_name = m[2];
+            env_name = match[2];
         }
 
         metadata('environment', metadata('attach-environment') ?
