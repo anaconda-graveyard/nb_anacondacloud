@@ -175,7 +175,8 @@ class Uploader(object):
 
     @property
     def ksname(self):
-        return self.content.get("metadata", {}).get("kernelspec", {}).get("name", None)
+        ks = self.content.get("metadata", {}).get("kernelspec", {})
+        return ks.get("name", None)
 
     @property
     def metadata(self):
