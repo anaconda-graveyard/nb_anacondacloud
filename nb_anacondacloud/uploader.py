@@ -30,7 +30,11 @@ class Uploader(object):
         if self.metadata.get("attach-environment", None):
             self.env_name = self.metadata.get("environment", None)
             if self.env_name is None:
-                self.env_name = self.default_env()
+                ksname = self.ksname
+                # ksname comes in the form conda-env-name-py
+                # or conda-[root/default]-[py/r] and we need to get the name
+                # so split it and catch it.
+                self.env_name = ksname.split("-")[-2]
         else:
             self.env_name = None
 
@@ -168,6 +172,10 @@ class Uploader(object):
             return re.sub('\-ipynb$', '', self.name)
         else:
             return self._project
+
+    @property
+    def ksname(self):
+        return self.content.get("metadata", {}).get("kernelspec", {}).get("name", None)
 
     @property
     def metadata(self):
