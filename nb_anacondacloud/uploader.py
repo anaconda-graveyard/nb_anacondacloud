@@ -31,10 +31,14 @@ class Uploader(object):
             self.env_name = self.metadata.get("environment", None)
             if self.env_name is None:
                 ksname = self.ksname
-                # ksname comes in the form conda-env-name-py
-                # or conda-[root/default]-[py/r] and we need to get the name
-                # so split it and catch it.
-                self.env_name = ksname.split("-")[-2]
+                if ksname in ["python2", "python3"]:
+                    # we are dealing with the native kernel, so let's find out
+                    # the name of the env where that kernel lives
+                    self.env_name = self.default_env()
+                else:
+                    # ksname comes in the form conda-env-name-[py/r] or
+                    # conda-root-[py/r] so split them and catch the name
+                    self.env_name = ksname.split("-")[-2]
         else:
             self.env_name = None
 
