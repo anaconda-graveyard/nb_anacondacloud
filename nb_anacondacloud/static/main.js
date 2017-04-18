@@ -1,6 +1,8 @@
-define(['jquery', 'base/js/dialog', 'base/js/namespace'],
-function ($, dialog, Jupyter) {
+define(['jquery', 'base/js/dialog', 'base/js/namespace', 'base/js/utils'],
+function ($, dialog, Jupyter, utils) {
     'use strict';
+
+    var ajax = utils.ajax || $.ajax;
 
     var NS = 'anaconda-cloud',
       THUMBNAIL_MIN_DIM = 48,
@@ -58,7 +60,7 @@ function ($, dialog, Jupyter) {
     function uploadNotebook() {
         var interval;
 
-        $.ajax({
+        ajax({
               url: api('publish'),
               method: 'POST',
               dataType: 'json',
@@ -149,7 +151,7 @@ function ($, dialog, Jupyter) {
         Jupyter.notification_area.get_widget('notebook')
             .set_message('Connecting to Anaconda Cloud', 2000);
 
-        $.ajax({
+        ajax({
             url: api('login'),
             method: 'GET',
             dataType: 'json',
@@ -498,7 +500,7 @@ function ($, dialog, Jupyter) {
     }
 
     function loginIntoAnaconda() {
-        $.ajax({
+        ajax({
             url: api('login'),
             method: 'POST',
             dataType: 'json',
