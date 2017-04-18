@@ -59,7 +59,7 @@ install:
     - cmd: set PYTHONUNBUFFERED=1
     - cmd: conda info
     - cmd: conda create -n nb_anacondacloud "%PY_CONDITION%"
-    - cmd: conda install -y -n nb_anacondacloud --file requirements.txt
+    - cmd: conda install -y -n nb_anacondacloud -c conda-forge --file requirements.txt
     - cmd: activate nb_anacondacloud
     - cmd: npm install
 

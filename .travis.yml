@@ -27,7 +27,7 @@ install:
   - conda config --add channels conda-forge
   - conda info -a
   - conda create -n nb_anacondacloud python=$TRAVIS_PYTHON_VERSION
-  - conda install -y -n nb_anacondacloud --file requirements.txt
+  - conda install -y -n nb_anacondacloud -c conda-forge --file requirements.txt
   - source activate nb_anacondacloud
   - npm install
 
