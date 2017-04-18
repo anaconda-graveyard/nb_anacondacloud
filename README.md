@@ -63,6 +63,12 @@ Automated tests are run on Travis-CI and Appveyor.
 
 ## Changelog
 
+### 1.4.0
+- support notebook security fix introduced in notebook 4.3.1
+
+### 1.3.0
+- fix bad variable reference in environment name
+- fix the attaching of the current environment
 
 ### 1.2.0
 - update to `nb_conda_kernels` 2.0.0 (and actually depend on it)

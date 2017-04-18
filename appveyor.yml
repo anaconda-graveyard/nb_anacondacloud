@@ -15,20 +15,20 @@ environment:
       CONDA_PY: "27"
       PY_CONDITION: "python >=2.7,<3"
     - TARGET_ARCH: "x86"
-      CONDA_PY: "34"
-      PY_CONDITION: "python >=3.4,<3.5"
-    - TARGET_ARCH: "x86"
       CONDA_PY: "35"
-      PY_CONDITION: "python >=3.5"
+      PY_CONDITION: "python >=3.5,<3.6"
+    - TARGET_ARCH: "x86"
+      CONDA_PY: "36"
+      PY_CONDITION: "python >=3.6"
     - TARGET_ARCH: "x64"
       CONDA_PY: "27"
       PY_CONDITION: "python >=2.7,<3"
     - TARGET_ARCH: "x64"
-      CONDA_PY: "34"
-      PY_CONDITION: "python >=3.4,<3.5"
-    - TARGET_ARCH: "x64"
       CONDA_PY: "35"
-      PY_CONDITION: "python >=3.5"
+      PY_CONDITION: "python >=3.5,<3.6"
+    - TARGET_ARCH: "x64"
+      CONDA_PY: "36"
+      PY_CONDITION: "python >=3.6"
 
 
 # We always use a 64-bit machine, but can build x86 distributions
@@ -59,7 +59,7 @@ install:
     - cmd: set PYTHONUNBUFFERED=1
     - cmd: conda info
     - cmd: conda create -n nb_anacondacloud "%PY_CONDITION%"
-    - cmd: conda install -y --quiet -n nb_anacondacloud -c conda-forge --file requirements.txt
+    - cmd: conda install -y -n nb_anacondacloud --file requirements.txt
     - cmd: activate nb_anacondacloud
     - cmd: npm install
 
@@ -67,7 +67,7 @@ install:
 build: off
 
 test_script:
-    - cmd: python setup.py develop
+    - cmd: pip install -e .
     - cmd: jupyter nbextension install nb_anacondacloud --py --sys-prefix
     - cmd: jupyter nbextension enable nb_anacondacloud --py --sys-prefix
     - cmd: jupyter serverextension enable nb_anacondacloud --py --sys-prefix
