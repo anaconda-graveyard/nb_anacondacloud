@@ -60,8 +60,7 @@ function ($, dialog, Jupyter, utils) {
     function uploadNotebook() {
         var interval;
 
-        ajax({
-              url: api('publish'),
+        ajax(api('publish'), {
               method: 'POST',
               dataType: 'json',
               contentType: 'application/json; charset=utf-8',
@@ -151,8 +150,7 @@ function ($, dialog, Jupyter, utils) {
         Jupyter.notification_area.get_widget('notebook')
             .set_message('Connecting to Anaconda Cloud', 2000);
 
-        ajax({
-            url: api('login'),
+        ajax(api('login'), {
             method: 'GET',
             dataType: 'json',
             contentType: 'application/json; charset=utf-8',
@@ -500,8 +498,7 @@ function ($, dialog, Jupyter, utils) {
     }
 
     function loginIntoAnaconda() {
-        ajax({
-            url: api('login'),
+        ajax(api('login'), {
             method: 'POST',
             dataType: 'json',
             contentType: 'application/json; charset=utf-8',
