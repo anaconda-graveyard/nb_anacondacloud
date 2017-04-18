@@ -1,10 +1,10 @@
-anaconda-client
+anaconda-client >= 1.6.2
 coverage
 flake8
 mock
 nb_conda_kernels >=2.0.0
 nodejs
 nose
-notebook
+notebook >= 4.3.1
 python
 pyyaml
