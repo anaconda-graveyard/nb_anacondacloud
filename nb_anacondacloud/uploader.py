@@ -201,6 +201,13 @@ class Uploader(object):
         return attrs
 
     @property
+    def release_attrs(self):
+        """
+        The attributes that are going to set when a new release is created in Anaconda Cloud.
+        """
+        return {'summary': self.summary}
+
+    @property
     def package(self):
         if self._package is None:
             try:
@@ -230,7 +237,7 @@ class Uploader(object):
                     self.version,
                     None,
                     None,
-                    None)
+                    self.release_attrs)
         return self._release
 
 
